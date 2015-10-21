@@ -9,11 +9,12 @@
 
 (defun mylog (message)
 	(if *DEBUG-MODE*
-		(format T message)
+		(format t "~a ~%" message)
 	)
 )
 
 
+; TODO: estrutura com par ou simplesmente um par (sem defstruct, tipo defun) ??
 ; 2.1.1 - Tipo accao
 (defstruct accao
 	par
@@ -47,5 +48,58 @@
 					(mylog "teste-accao passed")
 					T))
 		)
+	)
+)
+
+; 2.1.2 - Tipo tabuleiro
+(defstruct tabuleiro
+	campo-jogo
+	altura-colunas
+)
+
+(defun cria-tabuleiro ()
+	(let ((tabuleiro (make-tabuleiro)))
+		
+		(setf (tabuleiro-campo-jogo tabuleiro)
+			(make-array '(18 10)))
+		(setf (tabuleiro-altura-colunas tabuleiro)
+			(make-array `(10) :initial-element 0))
+		
+		tabuleiro)
+)
+
+(defun copia-tabuleiro (tabuleiro)
+	(let* ((tabuleiro-velho tabuleiro)
+		(tabuleiro-novo (cria-tabuleiro))
+		(campo-velho (tabuleiro-altura-colunas tabuleiro-velho))
+		(campo-novo (tabuleiro-altura-colunas tabuleiro-novo))
+		(altura-colunas-velho (tabuleiro-altura-colunas tabuleiro-velho))
+		(altura-colunas-novo (tabuleiro-altura-colunas tabuleiro-novo)))
+		
+		(loop for i from 0 to (- (array-dimension altura-colunas-novo 0) 1)
+			do (setf (aref altura-colunas-novo i) (aref altura-colunas-velho i)))
+		
+		;TODO: copiar campo de jogo
+		; usar tabuleiro-altura-coluna para reduzir nº de ciclos
+		tabuleiro-novo)
+)
+
+(defun tabuleiro-preenchido-p (tabuleiro n-linha n-coluna)
+	(cond ((< (tabuleiro-altura-coluna n-coluna) n-linha)
+			nil)
+		(t (progn
+			
+		)))
+)
+
+(defun tabuleiro-altura-coluna (tabuleiro n-coluna)
+	(aref (tabuleiro-altura-colunas tabuleiro) n-coluna)
+)
+
+; testes funcoes tabuleiro 1-4
+
+(defun teste-tabuleiro1-4 ()
+	(let* ((tab1 (cria-tabuleiro))
+		((tab2 (copia-tabuleiro tab1))))
 	)
 )
