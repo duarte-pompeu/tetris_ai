@@ -65,3 +65,20 @@
 			(mylog "passa teste3"))
 	)
 )
+
+(defun teste-tabuleiro-preenche ()
+	(let ((tabuleiro (cria-tabuleiro)))
+		; posicoes validas
+		(tabuleiro-preenche! tabuleiro 0 0)
+		(tabuleiro-preenche! tabuleiro 1 1)
+		(tabuleiro-preenche! tabuleiro 2 2)
+		(tabuleiro-preenche! tabuleiro 17 9)
+		(tabuleiro-preenche! tabuleiro -1 -1)
+		; posicoes invalidas
+		(tabuleiro-preenche! tabuleiro 18 0)
+		(tabuleiro-preenche! tabuleiro 18 5)
+		(tabuleiro-preenche! tabuleiro 0 10)
+		(tabuleiro-preenche! tabuleiro 18 10)
+		
+		(mylog tabuleiro))
+)

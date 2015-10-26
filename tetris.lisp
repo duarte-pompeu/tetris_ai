@@ -79,3 +79,29 @@
 (defun tabuleiro-altura-coluna (tabuleiro n-coluna)
 	(aref (tabuleiro-altura-colunas tabuleiro) n-coluna)
 )
+
+(defun tabuleiro-linha-completa-p (tabuleiro linha)
+
+)
+
+(defun tabuleiro-preenche! (tabuleiro linha coluna)
+	(if (and (>= linha 0) (<= linha 17) (>= coluna 0) (<= coluna 9))
+		(let ((campo (tabuleiro-campo-jogo tabuleiro))
+			(linha-real (- 17 linha)))
+			
+			(setf (aref campo linha-real coluna) T)
+			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
+				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) (+ linha 1)))
+		)
+	)
+)
+
+(defun tabuleiro-remove-linha! (tabuleiro linha)
+
+)
+
+(defun tabuleiro-topo-preenchido-p (tabuleiro)
+
+)
+
+
