@@ -131,9 +131,12 @@
 (defun tabuleiro-coloca-simbolo! (tabuleiro linha coluna simbolo)
 	(if (and (>= linha 0) (<= linha 17) (>= coluna 0) (<= coluna 9))
 		(let ((campo (tabuleiro-campo-jogo tabuleiro))
-			(linha-real (converte-linha tabuleiro linha)))
-
+			(linha-real (converte-linha tabuleiro linha))
+			(incremento-altura 1))
+			
 			(setf (aref campo linha-real coluna) simbolo)
+			
+			;FIXME mover a actualização de alturas para preenche! e remove!
 			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
 				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) (+ linha 1)))
 		)
@@ -147,14 +150,18 @@
 	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
 		(linha-real (converte-linha tabuleiro linha)))
 
-	(loop for coluna upto (max-coluna tabuleiro)
-	do (tabuleiro-remove! tabuleiro linha coluna))
+		(loop for coluna upto (max-coluna tabuleiro)
+		do (tabuleiro-remove! tabuleiro linha coluna))
+		
+		(loop for l from linha upto (- (max-linha tabuleiro) 1)
+		do (loop for c upto (max-coluna tabuleiro)
+			do (tabuleiro-coloca-simbolo! tabuleiro l c
+				(tabuleiro-preenchido-p tabuleiro (+ l 1) c))))
+				
+		(loop for c upto (max-coluna tabuleiro)
+		do (tabuleiro-remove! tabuleiro (max-linha tabuleiro) c))
 	
-	(loop for linha upto (- (max-linha tabuleiro) 1)
-	do (loop for coluna upto (max-coluna tabuleiro)
-		do (tabuleiro-coloca-simbolo! tabuleiro linha coluna
-				(tabuleiro-preenchido-p tabuleiro (+ linha 1) coluna)))))
-
+	)
 )
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
