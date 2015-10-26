@@ -141,13 +141,19 @@
 )
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
-	; optimizar com altura das colunas
+	; TODO: optimizar com altura das colunas
+	; FIXME: actualizar valor das alturas 
 
 	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
 		(linha-real (converte-linha tabuleiro linha)))
 
-	(loop for col upto ultima-coluna
-	do ()))
+	(loop for coluna upto (max-coluna tabuleiro)
+	do (tabuleiro-remove! tabuleiro linha coluna))
+	
+	(loop for linha upto (- (max-linha tabuleiro) 1)
+	do (loop for coluna upto (max-coluna tabuleiro)
+		do (tabuleiro-coloca-simbolo! tabuleiro linha coluna
+				(tabuleiro-preenchido-p tabuleiro (+ linha 1) coluna)))))
 
 )
 

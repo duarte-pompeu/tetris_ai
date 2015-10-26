@@ -116,7 +116,6 @@
 )
 
 (defun teste-tabuleiro-linha-completa ()
-	(mylog "teste-tabuleiro-linha-completa")
 
 	(let* ((tab (copia-tabuleiro (tabuleiro-pa-testes)))
 		(resultado-teste t))
@@ -140,12 +139,21 @@
 		)
 )
 
+(defun teste-tabuleiro-remove ()
+	(let* ((tab (copia-tabuleiro (tabuleiro-pa-testes))))
+		(tabuleiro-remove-linha! tab 0)
+		
+		(mylog tab)
+	)
+)
+
 (defun testa-tudo ()
 	(let* ((func-names '(teste-accao
 				teste-tabuleiro1-4
 				teste-tabuleiro-preenche
 				teste-tabuleiro-topo
 				teste-tabuleiro-linha-completa
+				teste-tabuleiro-remove
 		))
 		(conta-sucessos 0)
 		(conta-total (list-length func-names)))
@@ -153,9 +161,14 @@
 	(loop for func in func-names
 	do (progn
 		(let ((resultado (funcall func)))
+			(mylog func)
 			(mylog resultado)
-			(incf conta-sucessos))))
+			
+			(if resultado
+				(incf conta-sucessos)))))
 
-	(mylog "resultado (%)")
-	(* 100 ( / conta-sucessos conta-total)))
+	; nem todos os testes retornam valores adequados para avaliar aqui
+	; pode haver falsos negativos
+	(mylog "TESTES QUE FALHAM:")
+	(- conta-total conta-sucessos))
 )
