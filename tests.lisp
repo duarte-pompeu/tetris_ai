@@ -4,10 +4,9 @@
 	(let* ((inteiro 5)
 		(arr #2A ((T T nil) (nil T T)))
 		(acc (cria-accao inteiro arr)))
-
-		(cond ((not (accao-p acc))
-				(mylog "accao-p failed"))
-			((not (equal inteiro (accao-coluna acc)))
+		
+		(mylog acc)
+		(cond ((not (equal inteiro (accao-coluna acc)))
 				(mylog "accao-coluna failed"))
 			((not (equal arr (accao-peca acc)))
 				(mylog "accao-peca failed"))

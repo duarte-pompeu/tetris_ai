@@ -17,21 +17,18 @@
 
 ; TODO: estrutura com par ou simplesmente um par (sem defstruct, tipo defun) ??
 ; 2.1.1 - Tipo accao
-(defstruct accao
-	par
-)
 
 ; TODO: pode-se usar array ou tem que ser copia?
 (defun cria-accao (inteiro array)
-	(make-accao :par (cons inteiro array))
+	(cons inteiro array)
 )
 
 (defun accao-coluna (accao)
-	(car (accao-par accao))
+	(car accao)
 )
 
 (defun accao-peca (accao)
-	(cdr (accao-par accao))
+	(cdr accao)
 )
 
 ; 2.1.2 - Tipo tabuleiro
