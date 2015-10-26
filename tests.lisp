@@ -116,6 +116,8 @@
 )
 
 (defun teste-tabuleiro-linha-completa ()
+	(mylog "teste-tabuleiro-linha-completa")
+
 	(let* ((tab (copia-tabuleiro (tabuleiro-pa-testes)))
 		(resultado-teste t))
 
@@ -149,8 +151,11 @@
 		(conta-total (list-length func-names)))
 
 	(loop for func in func-names
-	do (if (funcall func)
-		(incf conta-sucessos)))
+	do (progn
+		(let ((resultado (funcall func)))
+			(mylog resultado)
+			(incf conta-sucessos))))
 
-	(/ conta-sucessos conta-total))
+	(mylog "resultado (%)")
+	(* 100 ( / conta-sucessos conta-total)))
 )

@@ -121,11 +121,19 @@
 )
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
+	(tabuleiro-coloca-simbolo! tabuleiro linha coluna t)
+)
+
+(defun tabuleiro-remove! (tabuleiro linha coluna)
+	(tabuleiro-coloca-simbolo! tabuleiro linha coluna nil)
+)
+
+(defun tabuleiro-coloca-simbolo! (tabuleiro linha coluna simbolo)
 	(if (and (>= linha 0) (<= linha 17) (>= coluna 0) (<= coluna 9))
 		(let ((campo (tabuleiro-campo-jogo tabuleiro))
 			(linha-real (converte-linha tabuleiro linha)))
 
-			(setf (aref campo linha-real coluna) T)
+			(setf (aref campo linha-real coluna) simbolo)
 			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
 				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) (+ linha 1)))
 		)
@@ -133,8 +141,14 @@
 )
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
-; TODO: a altura-colunas também deve ser mudada
-;		se nao me engano, basta decrementar todas as posicoes por 1
+	; optimizar com altura das colunas
+
+	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
+		(linha-real (converte-linha tabuleiro linha)))
+
+	(loop for col upto ultima-coluna
+	do ()))
+
 )
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
