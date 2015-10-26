@@ -41,8 +41,24 @@
 	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
 		(tamanho-campo (array-dimension campo 0))
 		(max-linha (- tamanho-campo 1)))
-		
+
 		(- max-linha linha))
+)
+
+(defun n-colunas (tabuleiro)
+	(array-dimension (tabuleiro-campo-jogo tabuleiro) 1)
+)
+
+(defun n-linhas (tabuleiro)
+	(array-dimension (tabuleiro-campo-jogo tabuleiro) 0)
+)
+
+(defun max-coluna (tabuleiro)
+	(- (n-colunas tabuleiro) 1)
+)
+
+(defun max-linha (tabuleiro)
+	(- (n-linhas tabuleiro) 1)
 )
 
 (defun cria-tabuleiro ()
@@ -81,7 +97,9 @@
 )
 
 (defun tabuleiro-preenchido-p (tabuleiro n-linha n-coluna)
-	(aref (tabuleiro-campo-jogo tabuleiro) n-linha n-coluna)
+	(aref (tabuleiro-campo-jogo tabuleiro)
+		(converte-linha tabuleiro n-linha)
+		n-coluna)
 )
 
 (defun tabuleiro-altura-coluna (tabuleiro n-coluna)
@@ -89,7 +107,17 @@
 )
 
 (defun tabuleiro-linha-completa-p (tabuleiro linha)
+	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
+		(ultima-coluna (max-coluna tabuleiro))
+		(resultado t))
 
+		(loop for coluna upto ultima-coluna
+		do (if (not (tabuleiro-preenchido-p tabuleiro linha coluna))
+			(progn
+			(setq resultado nil)
+			(return))))
+
+	resultado)
 )
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)

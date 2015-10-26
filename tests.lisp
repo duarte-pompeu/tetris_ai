@@ -99,3 +99,24 @@
 
 	)
 )
+
+(defun teste-tabuleiro-linha-completa ()
+	(let* ((tab (cria-tabuleiro))
+		(resultado-teste t))
+
+		(if (tabuleiro-linha-completa-p tab 0)
+			(progn
+			(mylog "FALHA: diz que linha é completa")
+			(setq resultado-teste nil)))
+
+		(loop for i upto (max-coluna tab)
+		do (tabuleiro-preenche! tab 0 i))
+
+		(if (not (tabuleiro-linha-completa-p tab 0))
+			(progn
+			(mylog "FALHA: diz que linha nao e completa")
+			(setq resultado-teste nil)))
+
+		resultado-teste
+		)
+)
