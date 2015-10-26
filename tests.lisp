@@ -17,6 +17,21 @@
 	)
 )
 
+(defun tabuleiro-pa-testes ()
+	(let* ((tabuleiro (cria-tabuleiro))
+		(ultima-coluna (max-coluna tabuleiro))
+		(ultima-linha (max-linha tabuleiro))
+		(col-end ultima-coluna))
+
+		(loop for linha upto ultima-linha
+		do (progn
+			(loop for coluna upto col-end
+			do (tabuleiro-preenche! tabuleiro linha coluna)))
+			(decf col-end))
+
+	tabuleiro)
+)
+
 ; teste funcoes tabuleiro 1-4
 (defun teste-tabuleiro1-4 ()
 	(let* ((tab1 (cria-tabuleiro))
@@ -101,22 +116,41 @@
 )
 
 (defun teste-tabuleiro-linha-completa ()
-	(let* ((tab (cria-tabuleiro))
+	(let* ((tab (copia-tabuleiro (tabuleiro-pa-testes)))
 		(resultado-teste t))
 
-		(if (tabuleiro-linha-completa-p tab 0)
+		(if (not (tabuleiro-linha-completa-p tab 0))
+			(progn
+			(mylog "FALHA: diz que linha 0 nao e completa")
+			(setq resultado-teste nil)))
+
+		(if (tabuleiro-linha-completa-p tab 1)
+			(progn
+			(mylog "FALHA: diz que linha 1 e completa")
+			(setq resultado-teste nil)))
+
+		(if (tabuleiro-linha-completa-p tab 9)
 			(progn
 			(mylog "FALHA: diz que linha é completa")
 			(setq resultado-teste nil)))
 
-		(loop for i upto (max-coluna tab)
-		do (tabuleiro-preenche! tab 0 i))
-
-		(if (not (tabuleiro-linha-completa-p tab 0))
-			(progn
-			(mylog "FALHA: diz que linha nao e completa")
-			(setq resultado-teste nil)))
-
 		resultado-teste
 		)
+)
+
+(defun testa-tudo ()
+	(let* ((func-names '(teste-accao
+				teste-tabuleiro1-4
+				teste-tabuleiro-preenche
+				teste-tabuleiro-topo
+				teste-tabuleiro-linha-completa
+		))
+		(conta-sucessos 0)
+		(conta-total (list-length func-names)))
+
+	(loop for func in func-names
+	do (if (funcall func)
+		(incf conta-sucessos)))
+
+	(/ conta-sucessos conta-total))
 )
