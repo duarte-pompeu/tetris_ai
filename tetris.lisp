@@ -37,6 +37,14 @@
 	altura-colunas
 )
 
+(defun converte-linha (tabuleiro linha)
+	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
+		(tamanho-campo (array-dimension campo 0))
+		(max-linha (- tamanho-campo 1)))
+		
+		(- max-linha linha))
+)
+
 (defun cria-tabuleiro ()
 	(let ((tabuleiro (make-tabuleiro)))
 
@@ -87,8 +95,8 @@
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
 	(if (and (>= linha 0) (<= linha 17) (>= coluna 0) (<= coluna 9))
 		(let ((campo (tabuleiro-campo-jogo tabuleiro))
-			(linha-real (- 17 linha)))
-			
+			(linha-real (converte-linha tabuleiro linha)))
+
 			(setf (aref campo linha-real coluna) T)
 			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
 				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) (+ linha 1)))
@@ -97,11 +105,22 @@
 )
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
-
+; TODO: a altura-colunas também deve ser mudada
+;		se nao me engano, basta decrementar todas as posicoes por 1
 )
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
+	(let* ((alturas (tabuleiro-altura-colunas tabuleiro))
+		(resultado nil))
 
+		(loop for i upto (- (array-dimension alturas 0) 1)
+			do (if (equal (aref alturas i) 18)
+				(progn
+					(setq resultado T)
+					(return)))
+		)
+	resultado
+	)
 )
 
 

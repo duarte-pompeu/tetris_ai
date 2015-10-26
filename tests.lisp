@@ -4,7 +4,7 @@
 	(let* ((inteiro 5)
 		(arr #2A ((T T nil) (nil T T)))
 		(acc (cria-accao inteiro arr)))
-		
+
 		(mylog acc)
 		(cond ((not (equal inteiro (accao-coluna acc)))
 				(mylog "accao-coluna failed"))
@@ -73,12 +73,29 @@
 		(tabuleiro-preenche! tabuleiro 1 1)
 		(tabuleiro-preenche! tabuleiro 2 2)
 		(tabuleiro-preenche! tabuleiro 17 9)
-		(tabuleiro-preenche! tabuleiro -1 -1)
 		; posicoes invalidas
+		(tabuleiro-preenche! tabuleiro -1 -1)
 		(tabuleiro-preenche! tabuleiro 18 0)
 		(tabuleiro-preenche! tabuleiro 18 5)
 		(tabuleiro-preenche! tabuleiro 0 10)
 		(tabuleiro-preenche! tabuleiro 18 10)
-		
+
 		(mylog tabuleiro))
+)
+
+(defun teste-tabuleiro-topo ()
+	(let ((tabuleiro (cria-tabuleiro)))
+		(mylog (tabuleiro-topo-preenchido-p tabuleiro))
+
+		(tabuleiro-preenche! tabuleiro 0 0)
+		(mylog (tabuleiro-topo-preenchido-p tabuleiro))
+
+		(tabuleiro-preenche! tabuleiro 17 9)
+		(mylog (tabuleiro-topo-preenchido-p tabuleiro))
+
+		(mylog tabuleiro)
+		(mylog "! so contam os resultados antes do print do tabuleiro")
+		(mylog "1º resultado deve ser nil, 2º false")
+
+	)
 )
