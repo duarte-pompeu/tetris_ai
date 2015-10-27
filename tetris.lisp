@@ -121,7 +121,13 @@
 )
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
-	(tabuleiro-coloca-simbolo! tabuleiro linha coluna t)
+	(let ((sucesso 
+		(tabuleiro-coloca-simbolo! tabuleiro linha coluna t)))
+		
+		(if sucesso
+			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
+				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) 
+					(+ linha 1)))))
 )
 
 (defun tabuleiro-remove! (tabuleiro linha coluna)
@@ -129,17 +135,14 @@
 )
 
 (defun tabuleiro-coloca-simbolo! (tabuleiro linha coluna simbolo)
-	(if (and (>= linha 0) (<= linha 17) (>= coluna 0) (<= coluna 9))
+	(if (or (< linha 0) (> linha 17) (< coluna 0) (> coluna 9))
+		nil
 		(let ((campo (tabuleiro-campo-jogo tabuleiro))
 			(linha-real (converte-linha tabuleiro linha))
 			(incremento-altura 1))
 			
 			(setf (aref campo linha-real coluna) simbolo)
-			
-			;FIXME mover a actualização de alturas para preenche! e remove!
-			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
-				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) (+ linha 1)))
-		)
+			t)
 	)
 )
 
