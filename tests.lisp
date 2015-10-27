@@ -141,12 +141,8 @@
 
 (defun teste-tabuleiro-remove ()
 	(let* ((tab (copia-tabuleiro (tabuleiro-pa-testes))))
-	
-		(tabuleiro-preenche! tab 17 0)
 		
 		(tabuleiro-remove-linha! tab 0)
-		(tabuleiro-remove-linha! tab 2)
-		(tabuleiro-remove-linha! tab 7)
 		(mylog tab)
 	)
 )

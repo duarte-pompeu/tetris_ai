@@ -131,8 +131,17 @@
 )
 
 (defun tabuleiro-remove! (tabuleiro linha coluna)
-	(tabuleiro-coloca-simbolo! tabuleiro linha coluna nil)
-)
+	(let* ((sucesso 
+		(tabuleiro-coloca-simbolo! tabuleiro linha coluna nil))
+		(alturas (tabuleiro-altura-colunas tabuleiro))
+		(altura (aref alturas coluna)))
+		
+		(if sucesso
+			(if (or (tabuleiro-preenchido-p tabuleiro linha coluna)
+					(= linha (- altura 1)))
+				(progn (mylog (list "looog" tabuleiro coluna))
+				(decf (aref alturas coluna)))))
+))
 
 (defun tabuleiro-coloca-simbolo! (tabuleiro linha coluna simbolo)
 	(if (or (< linha 0) (> linha 17) (< coluna 0) (> coluna 9))
@@ -158,12 +167,13 @@
 		
 		(loop for l from linha upto (- (max-linha tabuleiro) 1)
 		do (loop for c upto (max-coluna tabuleiro)
-			do (tabuleiro-coloca-simbolo! tabuleiro l c
-				(tabuleiro-preenchido-p tabuleiro (+ l 1) c))))
+			do (progn
+				(tabuleiro-remove! tabuleiro l c))
 				
-		(loop for c upto (max-coluna tabuleiro)
-		do (tabuleiro-remove! tabuleiro (max-linha tabuleiro) c))
-	
+				(if (tabuleiro-preenchido-p tabuleiro (+ l 1) c)
+					(tabuleiro-preenche! tabuleiro l c))))
+			;~ do (tabuleiro-coloca-simbolo! tabuleiro l c
+				;~ (tabuleiro-preenchido-p tabuleiro (+ l 1) c))))
 	)
 )
 
