@@ -121,21 +121,21 @@
 )
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
-	(let ((sucesso 
+	(let ((sucesso
 		(tabuleiro-coloca-simbolo! tabuleiro linha coluna t)))
-		
+
 		(if sucesso
 			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
-				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) 
+				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna)
 					(+ linha 1)))))
 )
 
 (defun tabuleiro-remove! (tabuleiro linha coluna)
-	(let* ((sucesso 
+	(let* ((sucesso
 		(tabuleiro-coloca-simbolo! tabuleiro linha coluna nil))
 		(alturas (tabuleiro-altura-colunas tabuleiro))
 		(altura (aref alturas coluna)))
-		
+
 		(if sucesso
 			(if (or (tabuleiro-preenchido-p tabuleiro linha coluna)
 					(= linha (- altura 1)))
@@ -149,7 +149,7 @@
 		(let ((campo (tabuleiro-campo-jogo tabuleiro))
 			(linha-real (converte-linha tabuleiro linha))
 			(incremento-altura 1))
-			
+
 			(setf (aref campo linha-real coluna) simbolo)
 			t)
 	)
@@ -157,19 +157,19 @@
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
 	; TODO: optimizar com altura das colunas
-	; FIXME: actualizar valor das alturas 
+	; FIXME: actualizar valor das alturas
 
 	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
 		(linha-real (converte-linha tabuleiro linha)))
 
 		(loop for coluna upto (max-coluna tabuleiro)
 		do (tabuleiro-remove! tabuleiro linha coluna))
-		
+
 		(loop for l from linha upto (- (max-linha tabuleiro) 1)
 		do (loop for c upto (max-coluna tabuleiro)
 			do (progn
 				(tabuleiro-remove! tabuleiro l c))
-				
+
 				(if (tabuleiro-preenchido-p tabuleiro (+ l 1) c)
 					(tabuleiro-preenche! tabuleiro l c))))
 			;~ do (tabuleiro-coloca-simbolo! tabuleiro l c
