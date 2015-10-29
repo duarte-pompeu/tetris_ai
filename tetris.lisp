@@ -124,6 +124,7 @@
 	(let ((sucesso
 		(tabuleiro-coloca-simbolo! tabuleiro linha coluna t)))
 
+		; verificar se altura foi alterada e actualizar altura-colunas
 		(if sucesso
 			(if (> (+ linha 1) (aref (tabuleiro-altura-colunas tabuleiro) coluna))
 				(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna)
@@ -136,6 +137,7 @@
 		(alturas (tabuleiro-altura-colunas tabuleiro))
 		(altura (aref alturas coluna)))
 
+		; verificar se altura foi alterada e actualizar altura-colunas
 		(if sucesso
 			(if (or (tabuleiro-preenchido-p tabuleiro linha coluna)
 					(= linha (- altura 1)))
@@ -162,9 +164,11 @@
 	(let* ((campo (tabuleiro-campo-jogo tabuleiro))
 		(linha-real (converte-linha tabuleiro linha)))
 
+		; remover linha
 		(loop for coluna upto (max-coluna tabuleiro)
 		do (tabuleiro-remove! tabuleiro linha coluna))
 
+		; descer linhas acima
 		(loop for l from linha upto (- (max-linha tabuleiro) 1)
 		do (loop for c upto (max-coluna tabuleiro)
 			do (progn
