@@ -200,3 +200,11 @@
 	(- conta-total conta-sucessos))
 
 )
+
+
+(setq state0 (make-estado))
+(setq problem0 (make-problema :estado-inicial state0))
+; problema - campo solucao
+(defun psol ()
+	(funcall (problema-solucao problem0) state0)
+)

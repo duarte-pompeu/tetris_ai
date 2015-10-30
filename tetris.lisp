@@ -216,8 +216,8 @@
 
 
 (defun estados-iguais-p (e1 e2) "estados iguais?"
-	(if (equal (estado-pontos e1) (estado-pontos e2)) 
-		(if (equal (estado-pecas-por-colocar e1) (estado-pecas-por-colocar e2)) 
+	(if (equal (estado-pontos e1) (estado-pontos e2))
+		(if (equal (estado-pecas-por-colocar e1) (estado-pecas-por-colocar e2))
 			(if (equal (estado-pecas-colocadas e1) (estado-pecas-colocadas e2))
 				(if (tabuleiros-iguais-p (estado-tabuleiro e1) (estado-tabuleiro e2))
 					T
@@ -236,5 +236,14 @@
 	)
 )
 
+(defstruct problema
+	(estado-inicial)
 
+	; um estado e' solucao quando nao ha mais pecas por colocar
+	(solucao (function (lambda (estado) (not (null (estado-pecas-por-colocar estado))))))
+	(accoes 0)
+	(resultado 0)
+	(custo 0)
+	(caminho 0)
+)
 
