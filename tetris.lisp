@@ -196,3 +196,45 @@
 )
 
 
+
+
+; 2.1.3 - tipo Estado
+
+(defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
+
+
+(defun copia-estado (estado-orig) "copia um estado"
+	(setf estado-novo
+		(make-estado
+			:pontos (estado-pontos estado-orig)
+			:pecas-por-colocar (estado-pecas-por-colocar estado-orig)
+			:pecas-colocadas (estado-pecas-colocadas estado-orig)
+			:tabuleiro (copia-tabuleiro (estado-tabuleiro estado-orig))
+		)
+	)
+)
+
+
+(defun estados-iguais-p (e1 e2) "estados iguais?"
+	(if (equal (estado-pontos e1) (estado-pontos e2)) 
+		(if (equal (estado-pecas-por-colocar e1) (estado-pecas-por-colocar e2)) 
+			(if (equal (estado-pecas-colocadas e1) (estado-pecas-colocadas e2))
+				(if (tabuleiros-iguais-p (estado-tabuleiro e1) (estado-tabuleiro e2))
+					T
+					nil
+				)
+			)
+		)
+	)
+)
+
+
+(defun estado-final-p (e1) "verifica se um estado e' estado final"
+	(or
+		(if (tabuleiro-topo-preenchido-p (estado-tabuleiro e1)) T nil)
+		(if (null (estado-pecas-por-colocar e1)) T nil)
+	)
+)
+
+
+
