@@ -31,8 +31,7 @@
 	(array-dimension p 1)
 )
 
-; !!! e preciso fazer (quote peca) porque elas nao sao strings, sao simbolos
-; !!! ainda por cima uma delas e' t, que quer dizer true em LISP ...
+; !!! talvez seja preciso fazer (quote peca) porque elas sao simbolos
 (defun rotacoes-peca (p)
 	(cond
 		((equal p 'i) peca-i)
@@ -276,7 +275,35 @@
 	(solucao (function (lambda (estado)
 		(not (null (estado-pecas-por-colocar estado))))))
 
-	(accoes (function (lambda (estado) (not "placeholder"))))
+	; 1. se (estado-final-p estado), retornar () (nada a fazer)
+	; 2. tirar a primeira peca do estado
+	;	1. para cada peca, obter possiveis rotacoes
+	;	2. para cada rotacao, obter posicoes possiveis
+	;	3. gerar accao com par peca e posicao
+	; 4. devolver lista
+	(accoes (function (lambda (estado)
+		; 1
+		(if (estado-final-p estado)
+			t
+			; 2
+			(let* ((primeira-peca (first (pecas-por-colocar estado) 0))
+				(rotacoes (rotacoes-peca primeira-peca))
+				(accoes-possiveis '()))
+				;2.1
+				(loop for peca-rodada in rotacoes
+				do (let* ((largura-peca (largura-peca peca-rodada))
+						; NOTA: nao se esta a verificar se uma peca e' mais larga que o tabuleiro
+						; segundo o enunciado e as pecas dadas, isso e' impossivel
+						(max-col (- largura-tabuleiro largura-peca)))
+					;2.2
+					(loop for posicao upto max-col
+					do (setq accoes-possiveis
+							(cons (cria-accao posicao peca-rodada) accoes-possiveis))
+					)
+				))
+			accoes-possiveis)
+		)
+	)))
 
 	(resultado (function (lambda (estado accao) (not "placeholder"))))
 
