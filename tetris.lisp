@@ -14,6 +14,36 @@
 	)
 )
 
+; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
+(defvar peca-i (list peca-i0 peca-i1))
+(defvar peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
+(defvar peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
+(defvar peca-o (list peca-o0))
+(defvar peca-s (list peca-s0 peca-s1))
+(defvar peca-z (list peca-z0 peca-z1))
+(defvar peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+(defun altura-peca (p)
+	(array-dimension p 0)
+)
+
+(defun largura-peca (p)
+	(array-dimension p 1)
+)
+
+; !!! e preciso fazer (quote peca) porque elas nao sao strings, sao simbolos
+; !!! ainda por cima uma delas e' t, que quer dizer true em LISP ...
+(defun rotacoes-peca (p)
+	(cond
+		((equal p 'i) peca-i)
+		((equal p 'l) peca-l)
+		((equal p 'j) peca-j)
+		((equal p 'o) peca-o)
+		((equal p 's) peca-s)
+		((equal p 'z) peca-z)
+		((equal p 't) peca-t))
+)
+
 
 ; TODO: estrutura com par ou simplesmente um par (sem defstruct, tipo defun) ??
 ; 2.1.1 - Tipo accao
@@ -236,14 +266,20 @@
 	)
 )
 
+
+
+
 (defstruct problema
 	(estado-inicial)
 
 	; um estado e' solucao quando nao ha mais pecas por colocar
-	(solucao (function (lambda (estado) (not (null (estado-pecas-por-colocar estado))))))
-	(accoes 0)
-	(resultado 0)
-	(custo 0)
-	(caminho 0)
+	(solucao (function (lambda (estado)
+		(not (null (estado-pecas-por-colocar estado))))))
+
+	(accoes (function (lambda (estado) (not "placeholder"))))
+
+	(resultado (function (lambda (estado accao) (not "placeholder"))))
+
+	(custo-caminho (function (lambda (estado) (not "placeholder"))))
 )
 
