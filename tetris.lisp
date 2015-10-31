@@ -233,13 +233,14 @@
 
 
 (defun copia-estado (estado-orig) "copia um estado"
-	(setf estado-novo
+	(let ((estado-novo
 		(make-estado
 			:pontos (estado-pontos estado-orig)
 			:pecas-por-colocar (estado-pecas-por-colocar estado-orig)
 			:pecas-colocadas (estado-pecas-colocadas estado-orig)
 			:tabuleiro (copia-tabuleiro (estado-tabuleiro estado-orig))
-		)
+		)))
+		estado-novo
 	)
 )
 
