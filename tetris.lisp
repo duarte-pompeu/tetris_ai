@@ -91,9 +91,8 @@
 )
 
 
-; TODO: estrutura com par ou simplesmente um par (sem defstruct, tipo defun) ??
-; 2.1.1 - Tipo accao
 
+; 2.1.1 - Tipo accao
 ; TODO: pode-se usar array ou tem que ser copia?
 (defun cria-accao (inteiro array)
 	(cons inteiro array)
@@ -307,7 +306,7 @@
 
 
 
-
+; FIXME: problema ainda nao foi nada testado
 (defstruct problema
 	(estado-inicial)
 
@@ -345,8 +344,15 @@
 		)
 	)))
 
+	; 1. fazer copia do estado velho
+	; 2. calcular a linha onde a peca vai encaixar (so sabemos as colunas)
+	; 3. actualizar o novo estado e retornar
 	(resultado (function (lambda (estado accao) (not (or "placeholder" accao estado)))))
 
-	(custo-caminho (function (lambda (estado) (not (or "placeholder" estado)))))
+	; usar diferencas de pontuacoes
+	; algum caso especial quando o novo estado leva a que o jogo se perca?
+	; talvez nao, ja que a arvore de decisoes nesse caso acaba sem se chegar a objectivo
+	; FIXME: como aceder a 2 estados se o lambda so aceita um ???
+	(custo-caminho (function (lambda (estado))))
 )
 
