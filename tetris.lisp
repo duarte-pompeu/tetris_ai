@@ -346,13 +346,42 @@
 
 	; 1. fazer copia do estado velho
 	; 2. calcular a linha onde a peca vai encaixar (so sabemos as colunas)
-	; 3. actualizar o novo estado e retornar
-	(resultado (function (lambda (estado accao) (not (or "placeholder" accao estado)))))
+	; 3. preencher tabuleiro do **estado novo**
+	; 4. se houver linhas completas: elimina-las e calcular nova pontuacao
+	; 5. aumentar lista de pecas-colucadas
+	; 6. reduzir lista de peças-por-colocar
+	; 7. retornar estado-novo
+	(resultado (function (lambda (estado accao)
+		;1
+		(let* ((estado-novo (copia-estado estado))
+			(largura (largura-peca (accao-peca accao)))
+			(coluna-inicial (accao-coluna accao))
+			(coluna-final (+ coluna-inicial (- largura 1)))
+			; 2
+			(altura-colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
+			; TODO: (subseq array i j) retorna array[i -> j-1]
+			; > (subseq #(0 1 2 3) 0 2)
+			; #(0 1)
+			; ver se isto esta a seleccionar a subarray que queremos
+			(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final))))
+
+			; 3
+
+			; 4
+
+			; 5
+			(setf (estado-pecas-colocadas estado-novo)
+				(cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
+			; 6
+			(setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
+		; 7
+		estado-novo)
+	)))
 
 	; usar diferencas de pontuacoes
 	; algum caso especial quando o novo estado leva a que o jogo se perca?
 	; talvez nao, ja que a arvore de decisoes nesse caso acaba sem se chegar a objectivo
 	; FIXME: como aceder a 2 estados se o lambda so aceita um ???
-	(custo-caminho (function (lambda (estado))))
+	(custo-caminho (function (lambda (estado) (or "placeholder" estado))))
 )
 
