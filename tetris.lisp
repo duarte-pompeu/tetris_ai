@@ -29,7 +29,36 @@
    "o valor T simboliza uma casa ocupada")
 
 
+; TODO: isto vem do utils.lisp
+; nao sei se e suposto ou nao importarmos esse codigo (tem erros de compilacao)
 
+;;; definicao das configuracoes possiveis para cada peca
+;;peca i
+(defconstant peca-i0 (make-array (list 4 1) :initial-element T))
+(defconstant peca-i1 (make-array (list 1 4) :initial-element T))
+;;peca l
+(defconstant peca-l0 (make-array (list 3 2) :initial-contents '((T T)(T nil)(T nil))))
+(defconstant peca-l1 (make-array (list 2 3) :initial-contents '((T nil nil)(T T T))))
+(defconstant peca-l2 (make-array (list 3 2) :initial-contents '((nil T)(nil T)(T T))))
+(defconstant peca-l3 (make-array (list 2 3) :initial-contents '((T T T)(nil nil T))))
+;;peca j
+(defconstant peca-j0 (make-array (list 3 2) :initial-contents '((T T)(nil T)(nil T))))
+(defconstant peca-j1 (make-array (list 2 3) :initial-contents '((T T T)(T nil nil))))
+(defconstant peca-j2 (make-array (list 3 2) :initial-contents '((T nil)(T nil)(T T))))
+(defconstant peca-j3 (make-array (list 2 3) :initial-contents '((nil nil T)(T T T))))
+;;peca o
+(defconstant peca-o0 (make-array (list 2 2) :initial-element T))
+;;peca s
+(defconstant peca-s0 (make-array (list 2 3) :initial-contents '((T T nil)(nil T T))))
+(defconstant peca-s1 (make-array (list 3 2) :initial-contents '((nil T)(T T)(T nil))))
+;;peca z
+(defconstant peca-z0 (make-array (list 2 3) :initial-contents '((nil T T)(T T nil))))
+(defconstant peca-z1 (make-array (list 3 2) :initial-contents '((T nil)(T T)(nil T))))
+;;peca t
+(defconstant peca-t0 (make-array (list 2 3) :initial-contents '((T T T)(nil T nil))))
+(defconstant peca-t1 (make-array (list 3 2) :initial-contents '((T nil)(T T)(T nil))))
+(defconstant peca-t2 (make-array (list 2 3) :initial-contents '((nil T nil)(T T T))))
+(defconstant peca-t3 (make-array (list 3 2) :initial-contents '((nil T)(T T)(nil T))))
 
 
 ; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
@@ -288,16 +317,16 @@
 
 	; 1. se (estado-final-p estado), retornar () (nada a fazer)
 	; 2. tirar a primeira peca do estado
-	;	1. para cada peca, obter possiveis rotacoes
-	;	2. para cada rotacao, obter posicoes possiveis
-	;	3. gerar accao com par peca e posicao
-	; 4. devolver lista
+	;	2.1. para cada peca, obter possiveis rotacoes
+	;	2.2. para cada rotacao, obter posicoes possiveis
+	;	2.3. gerar accao com par peca e posicao e meter na lista
+	; 3. devolver lista
 	(accoes (function (lambda (estado)
 		; 1
 		(if (estado-final-p estado)
 			t
 			; 2
-			(let* ((primeira-peca (first (pecas-por-colocar estado) 0))
+			(let* ((primeira-peca (first (estado-pecas-por-colocar estado)))
 				(rotacoes (rotacoes-peca primeira-peca))
 				(accoes-possiveis '()))
 				;2.1
@@ -305,19 +334,19 @@
 				do (let* ((largura-peca (largura-peca peca-rodada))
 						; NOTA: nao se esta a verificar se uma peca e' mais larga que o tabuleiro
 						; segundo o enunciado e as pecas dadas, isso e' impossivel
-						(max-col (- largura-tabuleiro largura-peca)))
+						(max-col (- +colunas+ largura-peca)))
 					;2.2
 					(loop for posicao upto max-col
 					do (setq accoes-possiveis
-							(cons (cria-accao posicao peca-rodada) accoes-possiveis))
+							(cons (cria-accao posicao peca-rodada) accoes-possiveis)) ;2.3
 					)
 				))
-			accoes-possiveis)
+			accoes-possiveis) ;3
 		)
 	)))
 
-	(resultado (function (lambda (estado accao) (not "placeholder"))))
+	(resultado (function (lambda (estado accao) (not (or "placeholder" accao estado)))))
 
-	(custo-caminho (function (lambda (estado) (not "placeholder"))))
+	(custo-caminho (function (lambda (estado) (not (or "placeholder" estado)))))
 )
 
