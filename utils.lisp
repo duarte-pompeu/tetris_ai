@@ -1,4 +1,4 @@
-;;; definicao das configuracoes possiveis para cada peca
+t ;;; definicao das configuracoes possiveis para cada peca
 ;;peca i 
 (defconstant peca-i0 (make-array (list 4 1) :initial-element T))
 (defconstant peca-i1 (make-array (list 1 4) :initial-element T))
@@ -141,4 +141,4 @@
 (dotimes (coluna 9)
   (tabuleiro-preenche! t1 1 coluna))
 (defvar e1 (make-estado :tabuleiro t1 :pecas-por-colocar '(i o j l t i)))
-(defvar p1 (formulacao-problema t1 '(i o j l t i)))
+;(defvar p1 (formulacao-problema t1 '(i o j l t i)))
