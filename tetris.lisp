@@ -10,7 +10,7 @@
 
 ; meter T para fazer print do mylog, nil para nao fazer;
 ; TODO: meter a nil antes de submeter no mooshak
-(defvar  *DEBUG-MODE* T)
+(defconstant  *DEBUG-MODE* T)
 
 (defun mylog (message)
 	(if *DEBUG-MODE*
@@ -292,35 +292,35 @@
 	; 5. aumentar lista de pecas-colucadas
 	; 6. reduzir lista de pecas-por-colocar
 	; 7. retornar estado-novo
-	(resultado (function (lambda (estado accao)
-		;1
-		(let* ((estado-novo (copia-estado estado))
-			(largura (largura-peca (accao-peca accao)))
-			(coluna-inicial (accao-coluna accao))
-			(coluna-final (+ coluna-inicial (- largura 1)))
-			; 2
-			(altura-colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
-			; TODO: (subseq array i j) retorna array[i -> j-1]
-			; > (subseq #(0 1 2 3) 0 2)
-			; #(0 1)
-			; ver se isto esta a seleccionar a subarray que queremos
-			
-			; FIXME: tirar comentario (esta assim para compilar enquanto var nao e usada
-			;(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final)))
-			)
+	;~ (resultado (function (lambda (estado accao)
+		;~ ;1
+		;~ (let* ((estado-novo (copia-estado estado))
+			;~ (largura (largura-peca (accao-peca accao)))
+			;~ (coluna-inicial (accao-coluna accao))
+			;~ (coluna-final (+ coluna-inicial (- largura 1)))
+			;~ ; 2
+			;~ (altura-colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
+			;~ ; TODO: (subseq array i j) retorna array[i -> j-1]
+			;~ ; > (subseq #(0 1 2 3) 0 2)
+			;~ ; #(0 1)
+			;~ ; ver se isto esta a seleccionar a subarray que queremos
 
-			; 3
+			;~ ; FIXME: tirar comentario (esta assim para compilar enquanto var nao e usada
+			;~ ;(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final)))
+			;~ )
 
-			; 4
+			;~ ; 3
 
-			; 5
-			(setf (estado-pecas-colocadas estado-novo)
-				(cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
-			; 6
-			(setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
-		; 7
-		estado-novo)
-	)))
+			;~ ; 4
+
+			;~ ; 5
+			;~ (setf (estado-pecas-colocadas estado-novo)
+				;~ (cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
+			;~ ; 6
+			;~ (setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
+		;~ ; 7
+		;~ estado-novo)
+	;~ )))
 
 	; usar diferencas de pontuacoes
 	; algum caso especial quando o novo estado leva a que o jogo se perca?
@@ -337,13 +337,13 @@
 (load "utils.fas")
 
 ; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
-(defvar peca-i (list peca-i0 peca-i1))
-(defvar peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
-(defvar peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
-(defvar peca-o (list peca-o0))
-(defvar peca-s (list peca-s0 peca-s1))
-(defvar peca-z (list peca-z0 peca-z1))
-(defvar peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+(defconstant peca-i (list peca-i0 peca-i1))
+(defconstant peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
+(defconstant peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
+(defconstant peca-o (list peca-o0))
+(defconstant peca-s (list peca-s0 peca-s1))
+(defconstant peca-z (list peca-z0 peca-z1))
+(defconstant peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
 
 (defun altura-peca (p)
 	(array-dimension p 0)
