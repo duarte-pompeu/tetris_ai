@@ -1,4 +1,4 @@
-t ;;; definicao das configuracoes possiveis para cada peca
+;;; definicao das configuracoes possiveis para cada peca
 ;;peca i 
 (defconstant peca-i0 (make-array (list 4 1) :initial-element T))
 (defconstant peca-i1 (make-array (list 1 4) :initial-element T))
