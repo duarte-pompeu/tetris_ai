@@ -3,20 +3,21 @@
 ; em Linux, nao funciona com cat | grep, nao sei pq
 
 ; invocar (rl) faz reload do ficheiro
-(defun rl ()
-	(load "tetris.lisp")
-	(load "tests.lisp")
-)
+;; (defun rl ()
+;; 	(load "tetris.lisp")
+;; 	(load "tests.lisp")
+;; )
 
-; meter T para fazer print do mylog, nil para nao fazer;
-; TODO: meter a nil antes de submeter no mooshak
-(defconstant  *DEBUG-MODE* T)
 
-(defun mylog (message)
-	(if *DEBUG-MODE*
-		(format t "~a ~%" message)
-	)
-)
+;; ; meter T para fazer print do mylog, nil para nao fazer;
+;; ; TODO: meter a nil antes de submeter no mooshak
+;; (defvar  *DEBUG-MODE* T)
+
+;; (defun mylog (message)
+;; 	(if *DEBUG-MODE*
+;; 		(format t "~a ~%" message)
+;; 	)
+;; )
 
 ;;; DEFINICOES
 (defconstant +linhas+ 18
@@ -33,7 +34,7 @@
    "o valor T simboliza uma casa ocupada")
 
 
-; 2.1.1 - Tipo accao
+;;; 2.1.1 - Tipo accao
 ; TODO: pode-se usar array ou tem que ser copia?
 (defun cria-accao (inteiro array)
 	(cons inteiro array)
@@ -47,16 +48,17 @@
 	(cdr accao)
 )
 
+
 ;;; 2.1.2 - TIPO TABULEIRO
 (defstruct tabuleiro
   "estrutura que define o tipo tabuleiro de jogo
-	  campo-jogo: um array que representa o campo de jogo cada posicao
-		e' representada por um boolean em que
-		T representa uma casa preenchida e nil uma vazia
-	  altura-colunas: array numero de linhas por coluna
-	  par-pos-mais-alta: par com linha e coluna da posicao mais alta
-	  usadas-por-linha: array com numero de casas preenchidas por linha
-	  total-ocupadas: numero de casas preenchidas no tabuleiro"
+      campo-jogo: um array que representa o campo de jogo cada posicao 
+        e' representada por um boolean em que
+        T representa uma casa preenchida e nil uma vazia
+      altura-colunas: array numero de linhas por coluna
+      par-pos-mais-alta: par com linha e coluna da posicao mais alta
+      usadas-por-linha: array com numero de casas preenchidas por linha
+      total-ocupadas: numero de casas preenchidas no tabuleiro"
 	campo-jogo
 	altura-colunas
 	par-pos-mais-alta
@@ -66,23 +68,23 @@
 
 (defun cria-tabuleiro ()
   "cria e inicia a estrutura tabuleiro"
-  (let ((campo (make-array (list +linhas+ +colunas+):initial-element nil))
+  (let ((campo (make-array (list +linhas+ +colunas+) :initial-element nil))
 	(alturas (make-array +colunas+ :initial-element 0))
 	(altura-maxima (cons 0 0))
 	(ocupadas-na-linha (make-array +linhas+ :initial-element 0))
 	(casas-preenchidas 0))
 	(make-tabuleiro :campo-jogo campo
-			:altura-colunas alturas
+			:altura-colunas alturas 
 			:par-pos-mais-alta altura-maxima
 			:ocupadas-na-linha ocupadas-na-linha
 			:total-ocupadas casas-preenchidas)))
 
 
-(defun copia-array (array)
+(defun copia-array (array &optional (limite (array-total-size array)) init-element)
   "recebe um array e devolve uma co'pia do array sem alterar o original"
   (let* ((dims (array-dimensions array))
-	 (new-array (make-array dims)))
-	 (dotimes (i (array-total-size array))
+	 (new-array (make-array dims :initial-element init-element)))
+	 (dotimes (i limite)
 	   (setf (row-major-aref new-array i) ; o array e' uma zona continua de memoria ordenada por linhas
 		 (row-major-aref array i)))
 	 new-array)) ;return
@@ -90,19 +92,24 @@
 
 (defun copia-tabuleiro (tabuleiro)
   "recebe um tabuleiro de devolve uma co'pia do tabuleiro original"
-  (let ((novo-tabuleiro (cria-tabuleiro)))
-	(setf (tabuleiro-campo-jogo novo-tabuleiro)
-	  (copia-array (tabuleiro-campo-jogo tabuleiro)))
-	(setf (tabuleiro-altura-colunas novo-tabuleiro)
-	  (copia-array (tabuleiro-altura-colunas tabuleiro)))
-	(setf (tabuleiro-par-pos-mais-alta novo-tabuleiro)
-	  (cons (car (tabuleiro-par-pos-mais-alta tabuleiro))
-		(cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
-	(setf (tabuleiro-ocupadas-na-linha tabuleiro)
-	  (copia-array (tabuleiro-ocupadas-na-linha tabuleiro)))
-	(setf (tabuleiro-total-ocupadas novo-tabuleiro)
-	  (tabuleiro-total-ocupadas tabuleiro))
-	novo-tabuleiro))
+  (let ((novo-tabuleiro (cria-tabuleiro))
+	(campo-jogo (tabuleiro-campo-jogo tabuleiro))
+	(alturas (tabuleiro-altura-colunas tabuleiro))
+	(linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
+	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro)))
+	(ocupadas-na-linha (tabuleiro-ocupadas-na-linha tabuleiro))
+	(total-ocupadas (tabuleiro-total-ocupadas tabuleiro)))
+    (setf (tabuleiro-campo-jogo novo-tabuleiro)
+	  (copia-array campo-jogo))
+    (setf (tabuleiro-altura-colunas novo-tabuleiro) 
+	  (copia-array alturas))
+    (setf (tabuleiro-par-pos-mais-alta novo-tabuleiro) 
+	  (cons linha-mais-alta coluna-mais-alta))
+    (setf (tabuleiro-ocupadas-na-linha novo-tabuleiro)
+	  (copia-array ocupadas-na-linha (1+ linha-mais-alta) 0))
+    (setf (tabuleiro-total-ocupadas novo-tabuleiro ) 
+	  total-ocupadas)
+    novo-tabuleiro))
 
 
 (defun tabuleiro-preenchido-p (tabuleiro linha coluna)
@@ -111,7 +118,7 @@
 
 
 (defun tabuleiro-altura-coluna (tabuleiro coluna)
-  "recebe um tabuleiro e uma coluna e devolve a linha mais alta preenchida"
+  "recebe um tabuleiro e uma coluna e devolve a linha mais alta (1-18) preenchida 0 significa nao preenchida"
   (aref (tabuleiro-altura-colunas tabuleiro) coluna))
 
 
@@ -122,59 +129,99 @@
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
   "marca a posicao linha coluna ocupada"
-  (and (< linha +linhas+) (< coluna +colunas+) (>= linha 0) (>= coluna 0)
-  (progn
-	(setf (aref (tabuleiro-campo-jogo tabuleiro) linha coluna) +ocupada+)
-	(incf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha))
-	(incf (tabuleiro-total-ocupadas tabuleiro))
-	(when (< (aref (tabuleiro-altura-colunas tabuleiro) coluna) linha)
-	  (progn
-	(setf (aref (tabuleiro-altura-colunas tabuleiro) coluna) linha)
-	(when (< (car (tabuleiro-par-pos-mais-alta tabuleiro)) linha)
-	 (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))
+  (let ((alturas (tabuleiro-altura-colunas tabuleiro))
+	(ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
+    (and (< linha +linhas+) (< coluna +colunas+) (>= linha 0) (>= coluna 0)
+	 (progn
+	   (setf (aref (tabuleiro-campo-jogo tabuleiro) linha coluna) +ocupada+)
+	   (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha) (+ ocupadas-na-linha 1))
+	   (incf (tabuleiro-total-ocupadas tabuleiro)) 
+	   (if (>= linha (aref alturas coluna)) ;nova altura -> 
+;se altura da coluna = linha  e' nova altura 
+;se = linha+1 nao e' nova altura mas pode ser nova ultima posicao de memoria preenchida  se a coluna for mais alta 
+	       (progn (setf (aref alturas coluna) (+ linha 1))
+		      (let ((ultima-linha (car (tabuleiro-par-pos-mais-alta tabuleiro)))
+			    (ultima-coluna (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
+			(when (or (and (= ultima-linha linha) ; caso linha maior que ultima linha esta coberto pelo if
+				       (> coluna ultima-coluna))
+				  (> linha ultima-linha))
+			  (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
+    
+
+;; (defun encontra-maximo (array)
+;;   "devolve o elemento maximo num array de numeros nao vazio"
+;;   (let ((maximo (row-major-aref array 0)))
+;;     (dotimes (i (array-total-size array))
+;;       (let ((elemento (row-major-aref array i)))	
+;; 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
+;; 	  (setf maximo elemento))))
+;;     maximo))
 
 
-(defun encontra-maximo (array)
-  "devolve o elemento maximo num array de numeros nao vazio"
-  (let ((maximo (row-major-aref array 0)))
-	(dotimes (i (array-total-size array))
-	  (let ((elemento (row-major-aref array i)))
-	(when (> elemento maximo) ;row-major-aref trata o array como um vector
-	  (setf maximo elemento))))
-	maximo))
+(defun encontra-altura (campo-jogo indice-coluna &optional (limite +linhas+))
+  "encontra a altura de uma coluna com indice-coluna no array campo-jogo"
+  (let ((resultado 0))
+    (dotimes (i limite)
+      (when (aref campo-jogo i indice-coluna)
+	(setf resultado (+ i 1))))
+    resultado))
 
-;	(format T "~A " maximo)
+
+(defun repoe-alturas! (campo-jogo alturas altura-maxima linha-removida)
+  "repoe as alturas num evento remove-linha!"
+  (dotimes (i +colunas+) ;actualiza alturas
+    (let ((altura (aref alturas i)))
+      (if (> altura (1+ linha-removida))
+	  (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
+	  (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))))) ; pode haver vazio por baixo da linha
 
 
 (defun desce-linha! (tabuleiro linha)
-  "copia sobre linha anterior apagando assim a informacao que la' estava"
-  (dotimes (i +colunas+)
-	(setf (aref (tabuleiro-campo-jogo tabuleiro)(- linha 1) i) (aref (tabuleiro-campo-jogo tabuleiro) linha i))))
+  "copia a linha sobre a linha anterior apagando assim a informação que la' estava"
+  (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
+	(linha-de-baixo (- linha 1)))
+    (let ((ocupadas-linha-de-cima (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
+      (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha-de-baixo) ocupadas-linha-de-cima) ;actualiza ocupadas na linha
+      (dotimes (i +colunas+) ;actualixa campo-jogo
+	(setf (aref campo-jogo linha-de-baixo i)
+	      (aref campo-jogo linha i))))))
 
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
   "remove a linha fazendo com que as linhas de cima descam uma casa"
-  (let ((altura-max (encontra-maximo (tabuleiro-altura-colunas tabuleiro))))
-	(dotimes (i  (+ altura-max 2)) ;queremos martelar a altura maxima com a linha acima dela
-		  (desce-linha! tabuleiro (+ linha (+ i 1))))))
+  (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
+	(alturas (tabuleiro-altura-colunas tabuleiro))
+	(total-ocupadas (tabuleiro-total-ocupadas tabuleiro))
+	(ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha))
+	(linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro))))
+    (setf (tabuleiro-total-ocupadas tabuleiro)
+	  (- total-ocupadas ocupadas-na-linha)) ;actualiza total ocupadas
+    (setf (car (tabuleiro-par-pos-mais-alta tabuleiro))
+	 (- linha-mais-alta 1))  ;actualiza linha do par posicao mais alta
+    (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempre no cilo
+      (desce-linha! tabuleiro (+ linha i)))
+    (repoe-alturas! campo-jogo alturas linha-mais-alta (decf linha)))) ;chamado com a linha de cima (incf ) se a ultima linha tivesse preenchida o jogo tinha acabado 
 
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
   "devolve T se houver uma peca que ocupa a linha 17"
   (eq (car (tabuleiro-par-pos-mais-alta tabuleiro)) +linha-maxima+))
 
-;;Esta funcao pode comparar arrays com dimensoes garantidamente identicas que desta forma se encontram em memoria como um vector e as coordenadas de cada elemento vao concidir
+
+;;Esta funcao pode comparar arrays com dimensoes garantidamente identicas 
+;;  que desta forma se encontram em memoria como um vector
+;;  assim,  as coordenadas de cada elemento vao concidir
 (defun vectores-iguais-p (vec1 vec2)
   "dados dois vectores devolve T se tiverem a mesma composicao e nil caso contrario"
   (let ((dim-vec1 (array-total-size vec1))
 	(dim-vec2 (array-total-size vec2))
 	(result t))
 	(and (eq dim-vec1 dim-vec2)
-		 (dotimes (i dim-vec2 result)
-		   (when (not (equal (row-major-aref vec1 i) (row-major-aref vec2 i)))
+	     (dotimes (i dim-vec2 result)
+	       (when (not (equal (row-major-aref vec1 i) (row-major-aref vec2 i)))
 		 (progn (setf result nil)
 			 (return)))))
-		 result))
+	     result))
 
 
 (defun pares-iguais-p (par outro)
@@ -200,13 +247,15 @@
 (defun array->tabuleiro (array)
   "devolve o tabuleiro construido a partir de um array de 18 linhas e 10 colunas"
   (let ((tabuleiro (cria-tabuleiro)))
-	(dotimes (i (array-total-size array))
-	  (when (row-major-aref array i)
+    (dotimes (i (array-total-size array))
+      (when (row-major-aref array i)
 	(multiple-value-bind (linha coluna) (floor i 10)  ;floor devolve dois valores que ficam associados a linha coluna
 	  (tabuleiro-preenche! tabuleiro linha coluna))))
-	tabuleiro))
+    tabuleiro))
 
-; 2.1.3 - tipo Estado
+
+
+;;; 2.1.3 - tipo Estado
 
 (defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
 
@@ -240,7 +289,7 @@
 
 (defun estado-final-p (e1) "verifica se um estado e' estado final"
 	(or
-		(if (tabuleiro-topo-preenchido-p (estado-tabuleiro e1)) T nil)
+	        (tabuleiro-topo-preenchido-p (estado-tabuleiro e1))
 		(if (null (estado-pecas-por-colocar e1)) T nil)
 	)
 )
@@ -364,3 +413,20 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
+
+
+;;;;**********MANTER NO FiM DO FICHEIRO*************
+;; A importação  do utils.lisp faz-se para os nossos  testes deviamos fazer load compile do utils
+;; para isso o utils.lisp tem de estar na mesma pasta do projeto
+;; Se copiarmos para aqui co'digo do utils nao passamos nos testes do moshack 
+;; O que temos de fazer e' descomentar a linha seguinte para testar e comentar para submeter
+;;  o que eu faco e' compilar o utils uma vez no dir e depois mantenho sempre como esta'
+;;  como o utils nao e' suposto ser alterado nao e' necessario estar sempre a compilar 
+;;  so' temos de ter cuidado para nao colocar o fas no git
+
+;; COMENTAR ANTES DE SUBMETER
+; (load(compile-file "utils.lisp"))
+
+;;DESCOMENTAR ANTES DE SUBMETER
+;(load "utils.fasl")
+
