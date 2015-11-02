@@ -1,3 +1,7 @@
+; CARACTERES NAO ASCII: [^\x00-\x7F]+
+; basta pesquisarem com regex, caso o vosso editor suporte
+; em Linux, nao funciona com cat | grep, nao sei pq
+
 ; invocar (rl) faz reload do ficheiro
 (defun rl ()
 	(load "tetris.lisp")
@@ -27,69 +31,6 @@
    "o valor nil simboliza uma casa livre")
 (defconstant +ocupada+ T
    "o valor T simboliza uma casa ocupada")
-
-
-; TODO: isto vem do utils.lisp
-; nao sei se e suposto ou nao importarmos esse codigo (tem erros de compilacao)
-
-;;; definicao das configuracoes possiveis para cada peca
-;;peca i
-(defconstant peca-i0 (make-array (list 4 1) :initial-element T))
-(defconstant peca-i1 (make-array (list 1 4) :initial-element T))
-;;peca l
-(defconstant peca-l0 (make-array (list 3 2) :initial-contents '((T T)(T nil)(T nil))))
-(defconstant peca-l1 (make-array (list 2 3) :initial-contents '((T nil nil)(T T T))))
-(defconstant peca-l2 (make-array (list 3 2) :initial-contents '((nil T)(nil T)(T T))))
-(defconstant peca-l3 (make-array (list 2 3) :initial-contents '((T T T)(nil nil T))))
-;;peca j
-(defconstant peca-j0 (make-array (list 3 2) :initial-contents '((T T)(nil T)(nil T))))
-(defconstant peca-j1 (make-array (list 2 3) :initial-contents '((T T T)(T nil nil))))
-(defconstant peca-j2 (make-array (list 3 2) :initial-contents '((T nil)(T nil)(T T))))
-(defconstant peca-j3 (make-array (list 2 3) :initial-contents '((nil nil T)(T T T))))
-;;peca o
-(defconstant peca-o0 (make-array (list 2 2) :initial-element T))
-;;peca s
-(defconstant peca-s0 (make-array (list 2 3) :initial-contents '((T T nil)(nil T T))))
-(defconstant peca-s1 (make-array (list 3 2) :initial-contents '((nil T)(T T)(T nil))))
-;;peca z
-(defconstant peca-z0 (make-array (list 2 3) :initial-contents '((nil T T)(T T nil))))
-(defconstant peca-z1 (make-array (list 3 2) :initial-contents '((T nil)(T T)(nil T))))
-;;peca t
-(defconstant peca-t0 (make-array (list 2 3) :initial-contents '((T T T)(nil T nil))))
-(defconstant peca-t1 (make-array (list 3 2) :initial-contents '((T nil)(T T)(T nil))))
-(defconstant peca-t2 (make-array (list 2 3) :initial-contents '((nil T nil)(T T T))))
-(defconstant peca-t3 (make-array (list 3 2) :initial-contents '((nil T)(T T)(nil T))))
-
-
-; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
-(defvar peca-i (list peca-i0 peca-i1))
-(defvar peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
-(defvar peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
-(defvar peca-o (list peca-o0))
-(defvar peca-s (list peca-s0 peca-s1))
-(defvar peca-z (list peca-z0 peca-z1))
-(defvar peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
-
-(defun altura-peca (p)
-	(array-dimension p 0)
-)
-
-(defun largura-peca (p)
-	(array-dimension p 1)
-)
-
-; !!! talvez seja preciso fazer (quote peca) porque elas sao simbolos
-(defun rotacoes-peca (p)
-	(cond
-		((equal p 'i) peca-i)
-		((equal p 'l) peca-l)
-		((equal p 'j) peca-j)
-		((equal p 'o) peca-o)
-		((equal p 's) peca-s)
-		((equal p 'z) peca-z)
-		((equal p 't) peca-t))
-)
-
 
 
 ; 2.1.1 - Tipo accao
@@ -206,7 +147,7 @@
 
 
 (defun desce-linha! (tabuleiro linha)
-  "copia sobre linha anterior apagando assim a informação que la' estava"
+  "copia sobre linha anterior apagando assim a informacao que la' estava"
   (dotimes (i +colunas+)
 	(setf (aref (tabuleiro-campo-jogo tabuleiro)(- linha 1) i) (aref (tabuleiro-campo-jogo tabuleiro) linha i))))
 
@@ -349,7 +290,7 @@
 	; 3. preencher tabuleiro do **estado novo**
 	; 4. se houver linhas completas: elimina-las e calcular nova pontuacao
 	; 5. aumentar lista de pecas-colucadas
-	; 6. reduzir lista de peças-por-colocar
+	; 6. reduzir lista de pecas-por-colocar
 	; 7. retornar estado-novo
 	(resultado (function (lambda (estado accao)
 		;1
@@ -363,7 +304,10 @@
 			; > (subseq #(0 1 2 3) 0 2)
 			; #(0 1)
 			; ver se isto esta a seleccionar a subarray que queremos
-			(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final))))
+			
+			; FIXME: tirar comentario (esta assim para compilar enquanto var nao e usada
+			;(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final)))
+			)
 
 			; 3
 
@@ -385,3 +329,38 @@
 	(custo-caminho (function (lambda (estado) (or "placeholder" estado))))
 )
 
+; FIXME: o load ficou neste sitio estranho porque aparentemente:
+; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
+; - se chamamos as funcoes m e n do "utils.fas", temos que fazer load do ficheiro primeiro
+
+; FIXME: o "utils.fas" usa uma funcao "formulacao-problema" que nao esta definida. what do?
+(load "utils.fas")
+
+; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
+(defvar peca-i (list peca-i0 peca-i1))
+(defvar peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
+(defvar peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
+(defvar peca-o (list peca-o0))
+(defvar peca-s (list peca-s0 peca-s1))
+(defvar peca-z (list peca-z0 peca-z1))
+(defvar peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+(defun altura-peca (p)
+	(array-dimension p 0)
+)
+
+(defun largura-peca (p)
+	(array-dimension p 1)
+)
+
+; !!! talvez seja preciso fazer (quote peca) porque elas sao simbolos
+(defun rotacoes-peca (p)
+	(cond
+		((equal p 'i) peca-i)
+		((equal p 'l) peca-l)
+		((equal p 'j) peca-j)
+		((equal p 'o) peca-o)
+		((equal p 's) peca-s)
+		((equal p 'z) peca-z)
+		((equal p 't) peca-t))
+)
