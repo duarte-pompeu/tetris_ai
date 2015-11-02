@@ -177,7 +177,7 @@
 
 
 (defun desce-linha! (tabuleiro linha)
-  "copia a linha sobre a linha anterior apagando assim a informação que la' estava"
+  "copia a linha sobre a linha anterior apagando assim a informacao que la' estava"
   (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
 	(linha-de-baixo (- linha 1)))
     (let ((ocupadas-linha-de-cima (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
@@ -383,7 +383,7 @@
 ; - se chamamos as funcoes m e n do "utils.fas", temos que fazer load do ficheiro primeiro
 
 ; FIXME: o "utils.fas" usa uma funcao "formulacao-problema" que nao esta definida. what do?
-(load "utils.fas")
+ (load "utils.fas")
 
 ; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
 (defconstant peca-i (list peca-i0 peca-i1))
@@ -413,20 +413,4 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
-
-
-;;;;**********MANTER NO FiM DO FICHEIRO*************
-;; A importação  do utils.lisp faz-se para os nossos  testes deviamos fazer load compile do utils
-;; para isso o utils.lisp tem de estar na mesma pasta do projeto
-;; Se copiarmos para aqui co'digo do utils nao passamos nos testes do moshack 
-;; O que temos de fazer e' descomentar a linha seguinte para testar e comentar para submeter
-;;  o que eu faco e' compilar o utils uma vez no dir e depois mantenho sempre como esta'
-;;  como o utils nao e' suposto ser alterado nao e' necessario estar sempre a compilar 
-;;  so' temos de ter cuidado para nao colocar o fas no git
-
-;; COMENTAR ANTES DE SUBMETER
-; (load(compile-file "utils.lisp"))
-
-;;DESCOMENTAR ANTES DE SUBMETER
-;(load "utils.fasl")
 
