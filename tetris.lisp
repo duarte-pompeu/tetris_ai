@@ -33,6 +33,8 @@
 (defconstant +ocupada+ T
    "o valor T simboliza uma casa ocupada")
 
+(defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
+
 
 ;;; 2.1.1 - Tipo accao
 ; TODO: pode-se usar array ou tem que ser copia?
@@ -381,42 +383,57 @@
 		)
 	)))
 
-	; 1. fazer copia do estado velho
-	; 2. calcular a linha onde a peca vai encaixar (so sabemos as colunas)
-	; 3. preencher tabuleiro do **estado novo**
-	; 4. se houver linhas completas: elimina-las e calcular nova pontuacao
-	; 5. aumentar lista de pecas-colucadas
-	; 6. reduzir lista de pecas-por-colocar
-	; 7. retornar estado-novo
-	;~ (resultado (function (lambda (estado accao)
-		;~ ;1
-		;~ (let* ((estado-novo (copia-estado estado))
-			;~ (largura (largura-peca (accao-peca accao)))
-			;~ (coluna-inicial (accao-coluna accao))
-			;~ (coluna-final (+ coluna-inicial (- largura 1)))
-			;~ ; 2
-			;~ (altura-colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
-			;~ ; TODO: (subseq array i j) retorna array[i -> j-1]
-			;~ ; > (subseq #(0 1 2 3) 0 2)
-			;~ ; #(0 1)
-			;~ ; ver se isto esta a seleccionar a subarray que queremos
+	; 1. fazer copia do estado velho -> mudar sempre campos do estado novo !!
+	; 2. meter peca no tabuleiro novo
+	; 3. se houver linhas completas: verificar quais sao
+	;		Se a pecca e colocada num intervalo de colunas, basta verificar a altura dessas
+	;		A unica altura relevante e a minima de todas essas: se h(0)= 2 e h(1) = 5 -> linhas 3 a 5 nao podem estar preenchidas
+	;		Tambem se pode considerar o intervalo relevante tendo em conta a altura da peca:
+	;		se a peca tem altura=3, as unicas linhas que podem ter sido preenchidas sao h(colunas) - h(peca)
+	; 4. calcular pontuacao
+	; 5. eliminar linhas preenchidas
+	; 6. aumentar lista de pecas-colucadas
+	; 7. reduzir lista de pecas-por-colocar
+	; 8. retornar estado-novo
+	(resultado (function (lambda (estado accao)
+		;1
+		(let* ((estado-novo (copia-estado estado))
+				(tab-novo (estado-tabuleiro-p estado-novo))
+				(peca (accao-peca accao))
+				(coluna (accao-coluna accao)))
+			; 2
+			(tabuleiro-larga-peca! tab-novo peca coluna)
 
-			;~ ; FIXME: tirar comentario (esta assim para compilar enquanto var nao e usada
-			;~ ;(linha-mais-alta (max-array (subseq altura-colunas coluna-inicial coluna-final)))
-			;~ )
+			(let* ((coluna-final (+ coluna (largura-peca peca)))
+				(alturas (subseq (todas-alturas) coluna coluna-final))
+				(altura-max-possivel (reduce #'min alturas))
+				(altura-min-possivel (- altura-max-possivel (altura-peca peca)))
+				(linhas-preenchidas '())
+				(pontuacao-obtida 0))
 
-			;~ ; 3
+				;3
+				(loop for l from altura-min-possivel upto (1- altura-max-possivel)
+				do (if (tabuleiro-linha-completa-p tab-novo l)
+					(setf (linhas-preenchidas) (cons l linhas-preenchidas))
+				))
 
-			;~ ; 4
-
-			;~ ; 5
-			;~ (setf (estado-pecas-colocadas estado-novo)
-				;~ (cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
-			;~ ; 6
-			;~ (setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
-		;~ ; 7
-		;~ estado-novo)
-	;~ )))
+				;4
+				(setf pontuacao-obtida (aref +PONTUACAO-LINHAS+
+					(length linhas-preenchidas)))
+				(setf (estado-pontos estado-novo) (+ pontuacao-obtida
+					(estado-pontos estado-novo)))
+				;5
+				(loop for l in linhas-preenchidas
+				do (tabuleiro-remove-linha! tab-novo l))
+			)
+			; 6
+			(setf (estado-pecas-colocadas estado-novo)
+				(cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
+			; 7
+			(setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
+		; 8
+		estado-novo)
+	)))
 
 	; usar diferencas de pontuacoes
 	; algum caso especial quando o novo estado leva a que o jogo se perca?
@@ -442,7 +459,7 @@
 (defconstant peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
 
 (defun peca-base (p)
-; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma constante
+; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
 	"e importante conhecer a base da peca para saber onde a encaixar
 	enquanto um quadrado e' trivial - encaixa na altura mais alta que encontrar
 	um l deitado nao - pode encaixar no meio de buracos
@@ -453,12 +470,18 @@
 
 	(let* ((largura (largura-peca p))
 		(altura (altura-peca p))
+		; o valor 100 e' usado para calcular a altura da base, ver comentarios abaixo
 		(alturas-base (make-array largura :initial-element 100)))
 
 		(loop for l upto (- altura 1)
 		do (loop for c upto (- largura 1)
 			do (if (aref p l c)
 					(setf (aref alturas-base c)
+						; a base e so o primeiro quadrado preenchido
+						; com min, asseguramos que nao volta a contar quadrados
+						; requisitos: o valor inicial deve ser bem alto devido ao min: entao escolheu-se 100
+						; TODO: isto nao e' muito eficiente:
+						; uma melhoria seria fazer isto uma unica vez por execucao ja que as pecas nunca mudam
 						(min l (aref alturas-base c))))))
 
 		alturas-base
@@ -472,7 +495,6 @@
 	(array-dimension p 1)
 )
 
-; !!! talvez seja preciso fazer (quote peca) porque elas sao simbolos
 (defun rotacoes-peca (p)
 	(cond
 		((equal p 'i) peca-i)
