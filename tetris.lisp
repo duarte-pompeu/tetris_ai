@@ -319,8 +319,10 @@
 	(estado-inicial)
 
 	; um estado e' solucao quando nao ha mais pecas por colocar
+	; e quando o topo nao esta preenchido !!
 	(solucao (function (lambda (estado)
-		(not (null (estado-pecas-por-colocar estado))))))
+		(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
+			(not (null (estado-pecas-por-colocar estado)))))))
 
 	; 1. se (estado-final-p estado), retornar () (nada a fazer)
 	; 2. tirar a primeira peca do estado
