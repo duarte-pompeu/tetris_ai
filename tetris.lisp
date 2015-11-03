@@ -161,19 +161,21 @@
 (defun encontra-altura (campo-jogo indice-coluna &optional (limite +linhas+))
   "encontra a altura de uma coluna com indice-coluna no array campo-jogo"
   (let ((resultado 0))
-    (dotimes (i limite)
+    (dotimes (i limite resultado)
       (when (aref campo-jogo i indice-coluna)
-	(setf resultado (+ i 1))))
-    resultado))
+	(setf resultado (+ i 1))))))
 
 
 (defun repoe-alturas! (campo-jogo alturas altura-maxima linha-removida)
   "repoe as alturas num evento remove-linha!"
-  (dotimes (i +colunas+) ;actualiza alturas
-    (let ((altura (aref alturas i)))
-      (if (> altura (1+ linha-removida))
-	  (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
-	  (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))))) ; pode haver vazio por baixo da linha
+  (let ((maxima 0))
+    (dotimes (i +colunas+ maxima) ;actualiza alturas
+      (let ((altura (aref alturas i)))
+	(if (> altura (1+ linha-removida))
+	    (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
+	    (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))
+	(when (> (aref alturas i) maxima)
+	  (setf maxima i)))))) ; pode haver vazio por baixo da linha
 
 
 (defun desce-linha! (tabuleiro linha)
@@ -189,18 +191,21 @@
 
 (defun tabuleiro-remove-linha! (tabuleiro linha)
   "remove a linha fazendo com que as linhas de cima descam uma casa"
-  (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
-	(alturas (tabuleiro-altura-colunas tabuleiro))
-	(total-ocupadas (tabuleiro-total-ocupadas tabuleiro))
-	(ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha))
-	(linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro))))
-    (setf (tabuleiro-total-ocupadas tabuleiro)
-	  (- total-ocupadas ocupadas-na-linha)) ;actualiza total ocupadas
-    (setf (car (tabuleiro-par-pos-mais-alta tabuleiro))
-	 (- linha-mais-alta 1))  ;actualiza linha do par posicao mais alta
-    (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempre no cilo
-      (desce-linha! tabuleiro (+ linha i)))
-    (repoe-alturas! campo-jogo alturas linha-mais-alta (decf linha)))) ;chamado com a linha de cima (incf ) se a ultima linha tivesse preenchida o jogo tinha acabado
+    (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
+	  (alturas (tabuleiro-altura-colunas tabuleiro))
+	  (total-ocupadas (tabuleiro-total-ocupadas tabuleiro))
+	  (ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha))
+	  (par-mais-alto (tabuleiro-par-pos-mais-alta tabuleiro))
+	  (linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro))))
+      (setf (tabuleiro-total-ocupadas tabuleiro)
+	    (- total-ocupadas ocupadas-na-linha)) ;actualiza total ocupadas
+      (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempre no cilo
+	(desce-linha! tabuleiro (+ linha i)))
+      (if (= linha-mais-alta 0)
+	  (setf  (tabuleiro-par-pos-mais-alta tabuleiro) '(0 . 0)) ;linha mais alta nao pode ser negativa
+	  (setf (car par-mais-alto)
+		(- linha-mais-alta 1)))  ;actualiza linha do par posicao mais alta
+      (setf (cdr par-mais-alto) (repoe-alturas! campo-jogo alturas linha-mais-alta (decf linha))))) ;chamado com a linha de cima (incf ) se a ultima linha tivesse preenchida o jogo tinha acabado
 
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
@@ -224,8 +229,8 @@
 	     result))
 
 
-(defun pares-iguais-p (par outro)
-  "predicado que compara dois pares de numeros e devolve T se forem identicos nil caso contr'ario"
+(defun pares-iguais-P (Par Outro)
+  "Predicado Que Compara Dois Pares De Numeros E Devolve T Se Forem Identicos Nil caso contr'ario"
   (and (eq (car par) (car outro)) (eq (cdr par) (cdr outro))))
 
 
@@ -290,7 +295,7 @@
 (defun estado-final-p (e1) "verifica se um estado e' estado final"
 	(or
 	        (tabuleiro-topo-preenchido-p (estado-tabuleiro e1))
-		(if (null (estado-pecas-por-colocar e1)) T nil)
+	        (null (estado-pecas-por-colocar e1))
 	)
 )
 
@@ -478,4 +483,3 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
-
