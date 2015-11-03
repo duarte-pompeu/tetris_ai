@@ -362,7 +362,7 @@
 	(accoes (function (lambda (estado)
 		; 1
 		(if (estado-final-p estado)
-			t
+			nil ;t
 			; 2
 			(let* ((primeira-peca (first (estado-pecas-por-colocar estado)))
 				(rotacoes (rotacoes-peca primeira-peca))
@@ -413,9 +413,10 @@
 				(pontuacao-obtida 0))
 
 				;3
-				(loop for l from altura-min-possivel upto (1- altura-max-possivel)
+				; FIXME: este max e' um hack temporario para evitar indices negativos
+				(loop for l from (max 0 altura-min-possivel) upto (1- altura-max-possivel)
 				do (if (tabuleiro-linha-completa-p tab-novo l)
-					(setf (linhas-preenchidas) (cons l linhas-preenchidas))
+					(setf linhas-preenchidas (cons l linhas-preenchidas))
 				))
 
 				;4

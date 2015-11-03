@@ -48,7 +48,6 @@
 
 	(larga tab peca-l0 6)
 	(larga tab peca-l2 6)
-
 ))
 
 (defun larga-o ()
@@ -60,7 +59,17 @@
 	(larga tab peca-o0 7)
 	(larga tab peca-o0 6)
 	(larga tab peca-o0 5)
+))
 
+(defun larga-tudo ()
+	(let ((tab (cria-tabuleiro)))
+	(larga tab peca-o0 0)
+	(larga tab peca-l0 0)
+	(larga tab peca-j0 0)
+
+	(larga tab peca-s0 0)
+	(larga tab peca-z0 0)
+	(larga tab peca-t0 0)
 ))
 
 (defun larga (tab peca col)
@@ -101,4 +110,38 @@
 
 		(desenha-estado estado)))
 ))
+
+(defun testa-remove-linha-1 ()
+	(let* ((prob (prob-0))
+	(estado (problema-estado-inicial prob)))
+
+	(setf (estado-pecas-por-colocar estado) '(o o o o o o o o o o))
+
+	(loop for i in '(0 2 4 6 0 2 4 6 8 8)
+	do (progn
+		(setf estado (funcall (problema-resultado prob) estado
+			(cria-accao i peca-o0)))
+	(desenha-estado estado)))
+))
+
+(defun testa-fim-jogo ()
+	"vai metendo pecas no mesmo sitio ate atingir topo do tabuleiro"
+	(let* ((prob (prob-0))
+		(estado (copia-estado (problema-estado-inicial prob)))
+		(accao (first (funcall (problema-accoes prob) estado))))
+
+		(desenha-estado estado)
+
+		; FIXME: o gajo esta a meter um quadrado, nao sei pq !!!
+		(setf (estado-pecas-por-colocar estado) '(l l l l l l l l l l l l l))
+
+	(loop while accao
+	do (progn
+		(setf estado (funcall (problema-resultado prob) estado accao))
+		(setf accao (first (funcall (problema-accoes prob) estado)))
+
+		(format t "pecas por colocar: ~a ~%" (estado-pecas-por-colocar estado))
+		(desenha-estado estado)))
+))
+
 
