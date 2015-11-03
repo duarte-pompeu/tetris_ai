@@ -398,14 +398,15 @@
 	(resultado (function (lambda (estado accao)
 		;1
 		(let* ((estado-novo (copia-estado estado))
-				(tab-novo (estado-tabuleiro-p estado-novo))
+				(tab-novo (estado-tabuleiro estado-novo))
 				(peca (accao-peca accao))
 				(coluna (accao-coluna accao)))
 			; 2
 			(tabuleiro-larga-peca! tab-novo peca coluna)
 
 			(let* ((coluna-final (+ coluna (largura-peca peca)))
-				(alturas (subseq (todas-alturas) coluna coluna-final))
+				(todas-alturas (tabuleiro-altura-colunas tab-novo))
+				(alturas (subseq todas-alturas coluna coluna-final))
 				(altura-max-possivel (reduce #'min alturas))
 				(altura-min-possivel (- altura-max-possivel (altura-peca peca)))
 				(linhas-preenchidas '())

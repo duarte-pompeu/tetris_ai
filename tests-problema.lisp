@@ -1,7 +1,16 @@
 (load "tetris.lisp")
 (load "testes-tab.lisp")
 
-;
+(defun estado-0 ()
+	(make-estado :pontos 0 :pecas-por-colocar '(o i j l o)
+	:pecas-colocadas '() :tabuleiro (cria-tabuleiro))
+)
+
+(defun prob-0 ()
+	(make-problema :estado-inicial (estado-0))
+)
+
+; testes de funcoes auxiliares de problema
 (defun preenche-1 ()
 	"coloca um i em 0 0"
 
@@ -59,3 +68,37 @@
 
 	(desenha-estado (make-estado :tabuleiro tab))
 )
+
+(defun testa-accoes ()
+	(let* ((prob (prob-0))
+		(estado (problema-estado-inicial prob)))
+
+	(desenha-estado estado)
+	(funcall (problema-accoes prob) estado)
+))
+
+(defun testa-resultado-1 ()
+	(let* ((prob (prob-0))
+		(estado (problema-estado-inicial prob))
+		(accoes (funcall (problema-accoes prob) estado)))
+
+	(loop for accao-escolhida in accoes
+	do (desenha-estado (funcall (problema-resultado prob)
+		estado accao-escolhida)))
+
+	(format t "~a ~%" accoes)
+))
+
+(defun testa-resultado-2 ()
+	(let* ((prob (prob-0))
+		(estado (problema-estado-inicial prob))
+		(accao (first (funcall (problema-accoes prob) estado))))
+
+	(loop while accao
+	do (progn
+		(setf estado (funcall (problema-resultado prob) estado accao))
+		(setf accao (first (funcall (problema-accoes prob) estado)))
+
+		(desenha-estado estado)))
+))
+
