@@ -117,29 +117,29 @@
 
 (defun igual-1 ()
 	"copia simples"
-	
+
 	(let* ((tab1 (cria-tabuleiro))
 		(tab2 (copia-tabuleiro tab1)))
-		
+
 	(tabuleiros-iguais-p tab1 tab2)
 ))
 
 (defun igual-2 ()
 	"copia, dps altera tab1 -> nao sao iguais"
-	
+
 	(let* ((tab1 (cria-tabuleiro))
 		(tab2 (copia-tabuleiro tab1)))
-	
+
 	(tabuleiro-preenche! tab1 0 0)
 	(tabuleiros-iguais-p tab1 tab2)
 ))
 
 (defun igual-3 ()
 	"cria tabuleiro com casa preenchida, copia dps -> sao iguais"
-	
+
 	(let* ((tab1 (cria-tabuleiro))
 		(tab2 nil))
-	
+
 	(tabuleiro-preenche! tab1 0 0)
 	(setf tab2 (copia-tabuleiro tab1))
 	(tabuleiros-iguais-p tab1 tab2)

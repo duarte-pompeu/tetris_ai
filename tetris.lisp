@@ -148,14 +148,14 @@
 			  (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
 
 
-;; (defun encontra-maximo (array)
-;;   "devolve o elemento maximo num array de numeros nao vazio"
-;;   (let ((maximo (row-major-aref array 0)))
-;;     (dotimes (i (array-total-size array))
-;;       (let ((elemento (row-major-aref array i)))
-;; 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
-;; 	  (setf maximo elemento))))
-;;     maximo))
+ (defun encontra-maximo (array)
+   "devolve o elemento maximo num array de numeros nao vazio"
+   (let ((maximo (row-major-aref array 0)))
+     (dotimes (i (array-total-size array))
+       (let ((elemento (row-major-aref array i)))
+ 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
+ 	  (setf maximo elemento))))
+     maximo))
 
 
 (defun encontra-altura (campo-jogo indice-coluna &optional (limite +linhas+))
@@ -301,7 +301,7 @@
 (defun tabuleiro-preenche-peca! (tab peca linha coluna)
 	"preenche-peca! recebe uma linha e coluna
 	e uma funcao auxiliar a funcao jogada, que so recebe uma coluna"
-	
+
 	(let ((largura (largura-peca peca))
 		(altura (altura-peca peca)))
 
@@ -310,7 +310,20 @@
 				; so preencher se posicao na peca for T
 				do (if (aref peca l c)
 					(tabuleiro-preenche! tab (+ linha l) (+ coluna c)))))
+))
 
+(defun tabuleiro-larga-peca! (tab peca coluna)
+	"larga-peca! recebe uma peca e coluna e faz uma jogada de tetris"
+
+	(let* ((base (peca-base peca))
+		(largura (largura-peca peca))
+		(alturas-tab (tabuleiro-altura-colunas tab))
+		(max-altura (encontra-maximo (subseq alturas-tab coluna (+ coluna largura))))
+		)
+
+	(tabuleiro-preenche-peca! tab peca max-altura coluna)
+
+	tab
 ))
 
 ;;;; 2.1.4 - tipo Problema
@@ -413,6 +426,29 @@
 (defconstant peca-s (list peca-s0 peca-s1))
 (defconstant peca-z (list peca-z0 peca-z1))
 (defconstant peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+(defun peca-base (p)
+; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma constante
+	"e importante conhecer a base da peca para saber onde a encaixar
+	enquanto um quadrado e' trivial - encaixa na altura mais alta que encontrar
+	um l deitado nao - pode encaixar no meio de buracos
+
+	exemplos:
+		linhas-base (peca-i0): (0 0 0 0)
+		linhas-base (peca-s0): (0 0 1)"
+
+	(let* ((largura (largura-peca p))
+		(altura (altura-peca p))
+		(alturas-base (make-array largura :initial-element 100)))
+
+		(loop for l upto (- altura 1)
+		do (loop for c upto (- largura 1)
+			do (if (aref p l c)
+					(setf (aref alturas-base c)
+						(min l (aref alturas-base c))))))
+
+		alturas-base
+))
 
 (defun altura-peca (p)
 	(array-dimension p 0)
