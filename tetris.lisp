@@ -318,10 +318,19 @@
 	(let* ((base (peca-base peca))
 		(largura (largura-peca peca))
 		(alturas-tab (tabuleiro-altura-colunas tab))
-		(max-altura (encontra-maximo (subseq alturas-tab coluna (+ coluna largura))))
-		)
+		(alturas-ajustadas (subseq (copia-array alturas-tab)
+			coluna (+ coluna largura)))
+		(max-altura 0))
 
-	(tabuleiro-preenche-peca! tab peca max-altura coluna)
+		(loop for c upto (1- largura)
+			do (setf (aref alturas-ajustadas c)
+				(- (aref alturas-ajustadas c) (aref base c))))
+
+		(setq max-altura (encontra-maximo alturas-ajustadas))
+		; ajustar linhas consoante a forma da peca
+
+
+		(tabuleiro-preenche-peca! tab peca max-altura coluna)
 
 	tab
 ))

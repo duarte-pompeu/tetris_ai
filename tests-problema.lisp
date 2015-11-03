@@ -38,8 +38,19 @@
 	(larga tab peca-l0 2)
 
 	(larga tab peca-l0 6)
-	(larga tab peca-l0 6)
 	(larga tab peca-l2 6)
+
+))
+
+(defun larga-o ()
+	(let ((tab (cria-tabuleiro)))
+	(larga tab peca-o0 1)
+	(larga tab peca-o0 2)
+	(larga tab peca-o0 3)
+
+	(larga tab peca-o0 7)
+	(larga tab peca-o0 6)
+	(larga tab peca-o0 5)
 
 ))
 
