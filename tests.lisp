@@ -148,7 +148,7 @@
 
 		(if (tabuleiro-linha-completa-p tab 9)
 			(progn
-			(mylog "FALHA: diz que linha é completa")
+			(mylog "FALHA: diz que linha e' completa")
 			(setq resultado-teste nil)))
 
 		resultado-teste

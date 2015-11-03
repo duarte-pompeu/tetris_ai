@@ -52,7 +52,7 @@
 ;;; 2.1.2 - TIPO TABULEIRO
 (defstruct tabuleiro
   "estrutura que define o tipo tabuleiro de jogo
-      campo-jogo: um array que representa o campo de jogo cada posicao 
+      campo-jogo: um array que representa o campo de jogo cada posicao
         e' representada por um boolean em que
         T representa uma casa preenchida e nil uma vazia
       altura-colunas: array numero de linhas por coluna
@@ -74,7 +74,7 @@
 	(ocupadas-na-linha (make-array +linhas+ :initial-element 0))
 	(casas-preenchidas 0))
 	(make-tabuleiro :campo-jogo campo
-			:altura-colunas alturas 
+			:altura-colunas alturas
 			:par-pos-mais-alta altura-maxima
 			:ocupadas-na-linha ocupadas-na-linha
 			:total-ocupadas casas-preenchidas)))
@@ -101,13 +101,13 @@
 	(total-ocupadas (tabuleiro-total-ocupadas tabuleiro)))
     (setf (tabuleiro-campo-jogo novo-tabuleiro)
 	  (copia-array campo-jogo))
-    (setf (tabuleiro-altura-colunas novo-tabuleiro) 
+    (setf (tabuleiro-altura-colunas novo-tabuleiro)
 	  (copia-array alturas))
-    (setf (tabuleiro-par-pos-mais-alta novo-tabuleiro) 
+    (setf (tabuleiro-par-pos-mais-alta novo-tabuleiro)
 	  (cons linha-mais-alta coluna-mais-alta))
     (setf (tabuleiro-ocupadas-na-linha novo-tabuleiro)
 	  (copia-array ocupadas-na-linha (1+ linha-mais-alta) 0))
-    (setf (tabuleiro-total-ocupadas novo-tabuleiro ) 
+    (setf (tabuleiro-total-ocupadas novo-tabuleiro )
 	  total-ocupadas)
     novo-tabuleiro))
 
@@ -135,10 +135,10 @@
 	 (progn
 	   (setf (aref (tabuleiro-campo-jogo tabuleiro) linha coluna) +ocupada+)
 	   (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha) (+ ocupadas-na-linha 1))
-	   (incf (tabuleiro-total-ocupadas tabuleiro)) 
-	   (if (>= linha (aref alturas coluna)) ;nova altura -> 
-;se altura da coluna = linha  e' nova altura 
-;se = linha+1 nao e' nova altura mas pode ser nova ultima posicao de memoria preenchida  se a coluna for mais alta 
+	   (incf (tabuleiro-total-ocupadas tabuleiro))
+	   (if (>= linha (aref alturas coluna)) ;nova altura ->
+;se altura da coluna = linha  e' nova altura
+;se = linha+1 nao e' nova altura mas pode ser nova ultima posicao de memoria preenchida  se a coluna for mais alta
 	       (progn (setf (aref alturas coluna) (+ linha 1))
 		      (let ((ultima-linha (car (tabuleiro-par-pos-mais-alta tabuleiro)))
 			    (ultima-coluna (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
@@ -146,13 +146,13 @@
 				       (> coluna ultima-coluna))
 				  (> linha ultima-linha))
 			  (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
-    
+
 
 ;; (defun encontra-maximo (array)
 ;;   "devolve o elemento maximo num array de numeros nao vazio"
 ;;   (let ((maximo (row-major-aref array 0)))
 ;;     (dotimes (i (array-total-size array))
-;;       (let ((elemento (row-major-aref array i)))	
+;;       (let ((elemento (row-major-aref array i)))
 ;; 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
 ;; 	  (setf maximo elemento))))
 ;;     maximo))
@@ -200,7 +200,7 @@
 	 (- linha-mais-alta 1))  ;actualiza linha do par posicao mais alta
     (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempre no cilo
       (desce-linha! tabuleiro (+ linha i)))
-    (repoe-alturas! campo-jogo alturas linha-mais-alta (decf linha)))) ;chamado com a linha de cima (incf ) se a ultima linha tivesse preenchida o jogo tinha acabado 
+    (repoe-alturas! campo-jogo alturas linha-mais-alta (decf linha)))) ;chamado com a linha de cima (incf ) se a ultima linha tivesse preenchida o jogo tinha acabado
 
 
 (defun tabuleiro-topo-preenchido-p (tabuleiro)
@@ -208,7 +208,7 @@
   (eq (car (tabuleiro-par-pos-mais-alta tabuleiro)) +linha-maxima+))
 
 
-;;Esta funcao pode comparar arrays com dimensoes garantidamente identicas 
+;;Esta funcao pode comparar arrays com dimensoes garantidamente identicas
 ;;  que desta forma se encontram em memoria como um vector
 ;;  assim,  as coordenadas de cada elemento vao concidir
 (defun vectores-iguais-p (vec1 vec2)
@@ -296,6 +296,24 @@
 
 
 
+;;;; 2.1.3 - funcoes auxiliares problema
+
+(defun tabuleiro-preenche-peca! (tab peca linha coluna)
+	"preenche-peca! recebe uma linha e coluna
+	e uma funcao auxiliar a funcao jogada, que so recebe uma coluna"
+	
+	(let ((largura (largura-peca peca))
+		(altura (altura-peca peca)))
+
+		(loop for l upto (- altura 1)
+			do (loop for c upto (- largura 1)
+				; so preencher se posicao na peca for T
+				do (if (aref peca l c)
+					(tabuleiro-preenche! tab (+ linha l) (+ coluna c)))))
+
+))
+
+;;;; 2.1.4 - tipo Problema
 ; FIXME: problema ainda nao foi nada testado
 (defstruct problema
 	(estado-inicial)
