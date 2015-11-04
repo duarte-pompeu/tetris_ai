@@ -2,7 +2,7 @@
 ; basta pesquisarem com regex, caso o vosso editor suporte
 ; em Linux, nao funciona com cat | grep, nao sei pq
 
-; invocar (rl) faz reload do ficheiro
+invocar (rl) faz reload do ficheiro
 (defun rl ()
  	(load "tetris.lisp")
 	(load "tests.lisp")
@@ -35,7 +35,7 @@
 (defconstant +ocupada+ T
    "o valor T simboliza uma casa ocupada")
 
-(defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
+;(defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
 
 
 ;;; 2.1.1 - Tipo accao
@@ -133,23 +133,23 @@
 
 (defun tabuleiro-preenche! (tabuleiro linha coluna)
   "marca a posicao linha coluna ocupada"
-  (let ((alturas (tabuleiro-altura-colunas tabuleiro))
-	(ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
     (and (< linha +linhas+) (< coluna +colunas+) (>= linha 0) (>= coluna 0)
-	 (progn
-	   (setf (aref (tabuleiro-campo-jogo tabuleiro) linha coluna) +ocupada+)
-	   (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha) (+ ocupadas-na-linha 1))
-	   (incf (tabuleiro-total-ocupadas tabuleiro))
-	   (if (>= linha (aref alturas coluna)) ;nova altura ->
-;se altura da coluna = linha  e' nova altura
-;se = linha+1 nao e' nova altura mas pode ser nova ultima posicao de memoria preenchida  se a coluna for mais alta
-	       (progn (setf (aref alturas coluna) (+ linha 1))
-		      (let ((ultima-linha (car (tabuleiro-par-pos-mais-alta tabuleiro)))
-			    (ultima-coluna (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
-			(when (or (and (= ultima-linha linha) ; caso linha maior que ultima linha esta coberto pelo if
-				       (> coluna ultima-coluna))
-				  (> linha ultima-linha))
-			  (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
+	 (let ((alturas (tabuleiro-altura-colunas tabuleiro))
+	       (ocupadas-na-linha (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
+	   (progn
+	     (setf (aref (tabuleiro-campo-jogo tabuleiro) linha coluna) +ocupada+)
+	     (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha) (+ ocupadas-na-linha 1))
+	     (incf (tabuleiro-total-ocupadas tabuleiro))
+	     (if (>= linha (aref alturas coluna)) ;nova altura ->
+					;se altura da coluna = linha  e' nova altura
+					;se = linha+1 nao e' nova altura mas pode ser nova ultima posicao de memoria preenchida  se a coluna for mais alta
+		 (progn (setf (aref alturas coluna) (+ linha 1))
+			(let ((ultima-linha (car (tabuleiro-par-pos-mais-alta tabuleiro)))
+			      (ultima-coluna (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
+			  (when (or (and (= ultima-linha linha) ; caso linha maior que ultima linha esta coberto pelo if
+					 (> coluna ultima-coluna))
+				    (> linha ultima-linha))
+			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
 
 
  (defun encontra-maximo (array)
@@ -252,7 +252,7 @@
   "recebe um tabuleiro e devvolve o array de booleans correspondente"
   (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
 	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
-    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1))))
+    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta))))
 
 
 (defun array->tabuleiro (array)
@@ -521,4 +521,3 @@
 		((equal p 't) peca-t))
 )
 
-;;(load (compile-file "testes-tab.lisp"))
