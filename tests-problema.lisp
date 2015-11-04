@@ -86,6 +86,28 @@
 	(funcall (problema-accoes prob) estado)
 ))
 
+(defun testa-numero-accoes()
+	(let ((pecas (make-array 7 :initial-contents '(i l j o s z t)))
+		(n-opcoes (make-array 7 :initial-contents (list ( + (- 10 (largura-peca peca-i0))
+									(- 10 (largura-peca peca-i1)))
+								(+ 9 9 8 8)
+								(+ 9 9 8 8)
+								9 
+								(+ 8 9)
+								(+ 8 9)
+								(+ 9 9 8 8)))))
+		(loop for i upto (- (array-dimension pecas 0) 1)
+		do (let* ((estado (cria-estado (list (aref pecas i))))
+			(prob (cria-problema estado nil))
+			(accoes (funcall (problema-accoes prob) estado)))
+			
+			(if (= (length accoes)
+					(aref n-opcoes i))
+				(format t "accoes para peca ~a certas ~%" (aref pecas i))
+				(format t "accoes para ~a: ~D != ~D (obtidas v esperadas) ~%" 
+					(aref pecas i) (aref n-opcoes i) (length accoes)))))
+))
+
 (defun testa-resultado-1 ()
 	(let* ((prob (prob-0))
 		(estado (problema-estado-inicial prob))
