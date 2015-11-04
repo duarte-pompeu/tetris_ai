@@ -240,7 +240,7 @@
 
 (defun tabuleiros-iguais-p (tabuleiro outro)
   "dados dois tabuleiro devolve T se forem iguais e nil caso contr'ario"
-  (cond ((/= (tabuleiro-total-ocupadas tabuleiro)  (tabuleiro-total-ocupadas tabuleiro)) nil)
+  (cond ((/= (tabuleiro-total-ocupadas tabuleiro)  (tabuleiro-total-ocupadas outro)) nil)
 	((not (pares-iguais-p (tabuleiro-par-pos-mais-alta tabuleiro) (tabuleiro-par-pos-mais-alta outro))) nil)
 	((not (vectores-iguais-p (tabuleiro-altura-colunas tabuleiro) (tabuleiro-altura-colunas outro))) nil)
 	((not (vectores-iguais-p (tabuleiro-ocupadas-na-linha tabuleiro) (tabuleiro-ocupadas-na-linha outro))) nil)
@@ -282,8 +282,8 @@
 	(let ((estado-novo
 		(make-estado
 			:pontos (estado-pontos estado-orig)
-			:pecas-por-colocar (estado-pecas-por-colocar estado-orig)
-			:pecas-colocadas (estado-pecas-colocadas estado-orig)
+			:pecas-por-colocar (copy-list (estado-pecas-por-colocar estado-orig))
+			:pecas-colocadas (copy-list (estado-pecas-colocadas estado-orig))
 			:tabuleiro (copia-tabuleiro (estado-tabuleiro estado-orig))
 		)))
 		estado-novo
