@@ -331,7 +331,7 @@
 ; e quando o topo nao esta preenchido !!
 (defun solucao (estado)
 	(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
-		(not (null (estado-pecas-por-colocar estado))))
+		(null (estado-pecas-por-colocar estado)))
 )
 
 ; 1. se (estado-final-p estado), retornar () (nada a fazer)
