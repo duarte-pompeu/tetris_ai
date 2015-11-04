@@ -7,7 +7,7 @@
 )
 
 (defun prob-0 ()
-	(make-problema :estado-inicial (estado-0))
+	(cria-problema (estado-0) nil)
 )
 
 ; testes de funcoes auxiliares de problema
@@ -126,22 +126,17 @@
 
 (defun testa-fim-jogo ()
 	"vai metendo pecas no mesmo sitio ate atingir topo do tabuleiro"
-	(let* ((prob (prob-0))
-		(estado (copia-estado (problema-estado-inicial prob)))
+	(let* ((estado (cria-estado '(l l l l l l l l l l l l l)))
+		(prob (cria-problema estado nil))
 		(accao (first (funcall (problema-accoes prob) estado))))
 
 		(desenha-estado estado)
 
-		; FIXME: o gajo esta a meter um quadrado, nao sei pq !!!
-		(setf (estado-pecas-por-colocar estado) '(l l l l l l l l l l l l l))
+		(loop while accao
+		do (progn
+			(setf estado (funcall (problema-resultado prob) estado accao))
+			(setf accao (first (funcall (problema-accoes prob) estado)))
 
-	(loop while accao
-	do (progn
-		(setf estado (funcall (problema-resultado prob) estado accao))
-		(setf accao (first (funcall (problema-accoes prob) estado)))
-
-		(format t "pecas por colocar: ~a ~%" (estado-pecas-por-colocar estado))
-		(desenha-estado estado)))
+			(format t "pecas por colocar: ~a ~%" (estado-pecas-por-colocar estado))
+			(desenha-estado estado)))
 ))
-
-

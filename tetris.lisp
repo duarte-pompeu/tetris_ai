@@ -3,21 +3,23 @@
 ; em Linux, nao funciona com cat | grep, nao sei pq
 
 ; invocar (rl) faz reload do ficheiro
-;; (defun rl ()
-;; 	(load "tetris.lisp")
-;; 	(load "tests.lisp")
-;; )
+(defun rl ()
+ 	(load "tetris.lisp")
+	(load "tests.lisp")
+	(load "testes-tab.lisp")
+	(load "tests-problema.lisp")
+)
 
 
 ;; ; meter T para fazer print do mylog, nil para nao fazer;
 ;; ; TODO: meter a nil antes de submeter no mooshak
-;; (defvar  *DEBUG-MODE* T)
+(defvar  *DEBUG-MODE* T)
 
-;; (defun mylog (message)
-;; 	(if *DEBUG-MODE*
-;; 		(format t "~a ~%" message)
-;; 	)
-;; )
+(defun mylog (message)
+ 	(if *DEBUG-MODE*
+ 		(format t "~a ~%" message)
+	)
+)
 
 ;;; DEFINICOES
 (defconstant +linhas+ 18
@@ -266,6 +268,13 @@
 
 (defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
 
+; a unica coisa que muda num estado inicial sao as pecas
+(defun cria-estado (pecas-por-colocar)
+	(make-estado :pontos 0
+				:pecas-por-colocar pecas-por-colocar
+				:pecas-colocadas '()
+				:tabuleiro (cria-tabuleiro))
+)
 
 (defun copia-estado (estado-orig) "copia um estado"
 	(let ((estado-novo
@@ -301,9 +310,113 @@
 	)
 )
 
+;;;; 2.1.4 - tipo Problema
+(defstruct problema
+	estado-inicial solucao accoes resultado custo-caminho)
 
+;auxiliar
+(defun cria-problema (estado funcao-custo-caminho)
+	(make-problema :estado-inicial estado
+					:solucao #'solucao
+					:accoes #'accoes
+					:resultado #'resultado
+					:custo-caminho funcao-custo-caminho)
+)
 
-;;;; 2.1.3 - funcoes auxiliares problema
+;;;; 2.2.1
+
+; um estado e' solucao quando nao ha mais pecas por colocar
+; e quando o topo nao esta preenchido !!
+(defun solucao (estado)
+	(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
+		(not (null (estado-pecas-por-colocar estado))))
+)
+
+; 1. se (estado-final-p estado), retornar () (nada a fazer)
+; 2. tirar a primeira peca do estado
+;	2.1. para cada peca, obter possiveis rotacoes
+;	2.2. para cada rotacao, obter posicoes possiveis
+;	2.3. gerar accao com par peca e posicao e meter na lista
+; 3. devolver lista
+(defun accoes (estado)
+	; 1
+	(if (estado-final-p estado)
+		nil ;t
+		; 2
+		(let* ((primeira-peca (first (estado-pecas-por-colocar estado)))
+			(rotacoes (rotacoes-peca primeira-peca))
+			(accoes-possiveis '()))
+			;2.1
+			(loop for peca-rodada in rotacoes
+			do (let* ((largura-peca (largura-peca peca-rodada))
+					; NOTA: nao se esta a verificar se uma peca e' mais larga que o tabuleiro
+					; segundo o enunciado e as pecas dadas, isso e' impossivel
+					(max-col (- +colunas+ largura-peca)))
+				;2.2
+				(loop for posicao upto max-col
+				do (setq accoes-possiveis
+						(cons (cria-accao posicao peca-rodada) accoes-possiveis)) ;2.3
+				)
+			))
+		accoes-possiveis) ;3
+	)
+)
+
+; 1. fazer copia do estado velho -> mudar sempre campos do estado novo !!
+	; 2. meter peca no tabuleiro novo
+	; 3. se houver linhas completas: verificar quais sao
+	;		Se a pecca e colocada num intervalo de colunas, basta verificar a altura dessas
+	;		A unica altura relevante e a minima de todas essas: se h(0)= 2 e h(1) = 5 -> linhas 3 a 5 nao podem estar preenchidas
+	;		Tambem se pode considerar o intervalo relevante tendo em conta a altura da peca:
+	;		se a peca tem altura=3, as unicas linhas que podem ter sido preenchidas sao h(colunas) - h(peca)
+	; 4. calcular pontuacao
+	; 5. eliminar linhas preenchidas
+	; 6. aumentar lista de pecas-colucadas
+	; 7. reduzir lista de pecas-por-colocar
+	; 8. retornar estado-novo
+(defun resultado (estado accao)
+	;1
+	(let* ((estado-novo (copia-estado estado))
+			(tab-novo (estado-tabuleiro estado-novo))
+			(peca (accao-peca accao))
+			(coluna (accao-coluna accao)))
+		; 2
+		(tabuleiro-larga-peca! tab-novo peca coluna)
+
+		(let* ((coluna-final (+ coluna (largura-peca peca)))
+			(todas-alturas (tabuleiro-altura-colunas tab-novo))
+			(alturas (subseq todas-alturas coluna coluna-final))
+			(altura-max-possivel (reduce #'min alturas))
+			(altura-min-possivel (- altura-max-possivel (altura-peca peca)))
+			(linhas-preenchidas '())
+			(pontuacao-obtida 0))
+
+			;3
+			; FIXME: este max e' um hack temporario para evitar indices negativos
+			(loop for l from (max 0 altura-min-possivel) upto (1- altura-max-possivel)
+			do (if (tabuleiro-linha-completa-p tab-novo l)
+				(setf linhas-preenchidas (cons l linhas-preenchidas))
+			))
+
+			;4
+			(setf pontuacao-obtida (aref +PONTUACAO-LINHAS+
+				(length linhas-preenchidas)))
+			(setf (estado-pontos estado-novo) (+ pontuacao-obtida
+				(estado-pontos estado-novo)))
+			;5
+			(loop for l in linhas-preenchidas
+			do (tabuleiro-remove-linha! tab-novo l))
+		)
+		; 6
+		(setf (estado-pecas-colocadas estado-novo)
+			(cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
+		; 7
+		(setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
+	; 8
+	estado-novo)
+)
+
+; funcoes auxiliares para resolver problemas
 
 (defun tabuleiro-preenche-peca! (tab peca linha coluna)
 	"preenche-peca! recebe uma linha e coluna
@@ -341,108 +454,6 @@
 
 	tab
 ))
-
-;;;; 2.1.4 - tipo Problema
-; FIXME: problema ainda nao foi nada testado
-(defstruct problema
-	(estado-inicial)
-
-	; um estado e' solucao quando nao ha mais pecas por colocar
-	; e quando o topo nao esta preenchido !!
-	(solucao (function (lambda (estado)
-		(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
-			(not (null (estado-pecas-por-colocar estado)))))))
-
-	; 1. se (estado-final-p estado), retornar () (nada a fazer)
-	; 2. tirar a primeira peca do estado
-	;	2.1. para cada peca, obter possiveis rotacoes
-	;	2.2. para cada rotacao, obter posicoes possiveis
-	;	2.3. gerar accao com par peca e posicao e meter na lista
-	; 3. devolver lista
-	(accoes (function (lambda (estado)
-		; 1
-		(if (estado-final-p estado)
-			nil ;t
-			; 2
-			(let* ((primeira-peca (first (estado-pecas-por-colocar estado)))
-				(rotacoes (rotacoes-peca primeira-peca))
-				(accoes-possiveis '()))
-				;2.1
-				(loop for peca-rodada in rotacoes
-				do (let* ((largura-peca (largura-peca peca-rodada))
-						; NOTA: nao se esta a verificar se uma peca e' mais larga que o tabuleiro
-						; segundo o enunciado e as pecas dadas, isso e' impossivel
-						(max-col (- +colunas+ largura-peca)))
-					;2.2
-					(loop for posicao upto max-col
-					do (setq accoes-possiveis
-							(cons (cria-accao posicao peca-rodada) accoes-possiveis)) ;2.3
-					)
-				))
-			accoes-possiveis) ;3
-		)
-	)))
-
-	; 1. fazer copia do estado velho -> mudar sempre campos do estado novo !!
-	; 2. meter peca no tabuleiro novo
-	; 3. se houver linhas completas: verificar quais sao
-	;		Se a pecca e colocada num intervalo de colunas, basta verificar a altura dessas
-	;		A unica altura relevante e a minima de todas essas: se h(0)= 2 e h(1) = 5 -> linhas 3 a 5 nao podem estar preenchidas
-	;		Tambem se pode considerar o intervalo relevante tendo em conta a altura da peca:
-	;		se a peca tem altura=3, as unicas linhas que podem ter sido preenchidas sao h(colunas) - h(peca)
-	; 4. calcular pontuacao
-	; 5. eliminar linhas preenchidas
-	; 6. aumentar lista de pecas-colucadas
-	; 7. reduzir lista de pecas-por-colocar
-	; 8. retornar estado-novo
-	(resultado (function (lambda (estado accao)
-		;1
-		(let* ((estado-novo (copia-estado estado))
-				(tab-novo (estado-tabuleiro estado-novo))
-				(peca (accao-peca accao))
-				(coluna (accao-coluna accao)))
-			; 2
-			(tabuleiro-larga-peca! tab-novo peca coluna)
-
-			(let* ((coluna-final (+ coluna (largura-peca peca)))
-				(todas-alturas (tabuleiro-altura-colunas tab-novo))
-				(alturas (subseq todas-alturas coluna coluna-final))
-				(altura-max-possivel (reduce #'min alturas))
-				(altura-min-possivel (- altura-max-possivel (altura-peca peca)))
-				(linhas-preenchidas '())
-				(pontuacao-obtida 0))
-
-				;3
-				; FIXME: este max e' um hack temporario para evitar indices negativos
-				(loop for l from (max 0 altura-min-possivel) upto (1- altura-max-possivel)
-				do (if (tabuleiro-linha-completa-p tab-novo l)
-					(setf linhas-preenchidas (cons l linhas-preenchidas))
-				))
-
-				;4
-				(setf pontuacao-obtida (aref +PONTUACAO-LINHAS+
-					(length linhas-preenchidas)))
-				(setf (estado-pontos estado-novo) (+ pontuacao-obtida
-					(estado-pontos estado-novo)))
-				;5
-				(loop for l in linhas-preenchidas
-				do (tabuleiro-remove-linha! tab-novo l))
-			)
-			; 6
-			(setf (estado-pecas-colocadas estado-novo)
-				(cons (first (estado-pecas-por-colocar estado)) (estado-pecas-colocadas estado-novo)))
-			; 7
-			(setf (estado-pecas-por-colocar estado-novo) (rest (estado-pecas-por-colocar estado-novo)))
-		; 8
-		estado-novo)
-	)))
-
-	; usar diferencas de pontuacoes
-	; algum caso especial quando o novo estado leva a que o jogo se perca?
-	; talvez nao, ja que a arvore de decisoes nesse caso acaba sem se chegar a objectivo
-	; FIXME: como aceder a 2 estados se o lambda so aceita um ???
-	(custo-caminho (function (lambda (estado) (or "placeholder" estado))))
-)
 
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
