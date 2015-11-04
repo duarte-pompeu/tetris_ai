@@ -1,4 +1,4 @@
-(load "tetris.lisp")
+;(load (compile-file "tetris.lisp"))
 
 ; ctrl-f FIXME -> erros mais graves
 
@@ -144,3 +144,12 @@
 	(setf tab2 (copia-tabuleiro tab1))
 	(tabuleiros-iguais-p tab1 tab2)
 ))
+
+
+(defun tab-cheio ()
+  "cria um tabuleiro cheio"
+  
+  (let ((tabuleiro (cria-tabuleiro)))
+    (dotimes (i +linhas+ tabuleiro)
+      (dotimes (j  +colunas+)
+	(tabuleiro-preenche! tabuleiro i j)))))
