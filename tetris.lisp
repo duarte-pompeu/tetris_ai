@@ -457,12 +457,33 @@
 	tab
 ))
 
+
+(defun qualidade (estado) "retorna o simetrico do numero de pontos"
+
+	(- (estado-pontos estado))
+)
+
+
+(defun custo-oportunidade (estado) "retorna maximo-pontos-possivel - pontos"
+
+	(let ((max-pontos 0))
+		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
+			(incf max-pontos (pontos-por-peca peca))
+		)
+		(- max-pontos (estado-pontos estado))
+	)
+)
+
+
+
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
 ; - se chamamos as funcoes m e n do "utils.fas", temos que fazer load do ficheiro primeiro
 
 ; FIXME: o "utils.fas" usa uma funcao "formulacao-problema" que nao esta definida. what do?
  (load "utils.fas")
+;(load (compile-file "utils.lisp"))
+
 
 ; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
 (defconstant peca-i (list peca-i0 peca-i1))
@@ -472,6 +493,28 @@
 (defconstant peca-s (list peca-s0 peca-s1))
 (defconstant peca-z (list peca-z0 peca-z1))
 (defconstant peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+
+; precisamos de saber a pontuacao maxima para cada peca
+
+(defconstant +pontos-peca-i+ 800)
+(defconstant +pontos-peca-j+ 500)
+(defconstant +pontos-peca-l+ 500)
+(defconstant +pontos-peca-s+ 300)
+(defconstant +pontos-peca-z+ 300)
+(defconstant +pontos-peca-t+ 300)
+(defconstant +pontos-peca-o+ 300)
+
+(defun pontos-por-peca (peca) "pontos maximos que a peca permite ganhar"
+	(cond
+		((equal peca 'i) +pontos-peca-i+)
+		((equal peca 'j) +pontos-peca-j+)
+		((equal peca 'l) +pontos-peca-l+)
+		((equal peca 's) +pontos-peca-s+)
+		((equal peca 'z) +pontos-peca-z+)
+		((equal peca 't) +pontos-peca-t+)
+		((equal peca 'o) +pontos-peca-o+)
+	)
+)
 
 (defun peca-base (p)
 ; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
@@ -520,4 +563,7 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
+
+
+
 
