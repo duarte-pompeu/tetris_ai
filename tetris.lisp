@@ -2,7 +2,7 @@
 ; basta pesquisarem com regex, caso o vosso editor suporte
 ; em Linux, nao funciona com cat | grep, nao sei pq
 
-invocar (rl) faz reload do ficheiro
+;invocar (rl) faz reload do ficheiro
 (defun rl ()
  	(load "tetris.lisp")
 	(load "tests.lisp")
@@ -35,7 +35,7 @@ invocar (rl) faz reload do ficheiro
 (defconstant +ocupada+ T
    "o valor T simboliza uma casa ocupada")
 
-;(defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
+(defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
 
 
 ;;; 2.1.1 - Tipo accao
