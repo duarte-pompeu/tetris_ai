@@ -84,14 +84,13 @@
 			:total-ocupadas casas-preenchidas)))
 
 
-(defun copia-array (array &optional (limite (array-total-size array)) init-element)
+(defun copia-array (array &optional (limite (array-total-size array)) init-element (dims (array-dimensions array)))
   "recebe um array e devolve uma co'pia do array sem alterar o original"
-  (let* ((dims (array-dimensions array))
-	 (new-array (make-array dims :initial-element init-element)))
-	 (dotimes (i limite)
-	   (setf (row-major-aref new-array i) ; o array e' uma zona continua de memoria ordenada por linhas
-		 (row-major-aref array i)))
-	 new-array)) ;return
+  (let ((new-array (make-array dims :initial-element init-element)))
+    (dotimes (i limite)
+      (setf (row-major-aref new-array i) ; o array e' uma zona continua de memoria ordenada por linhas
+	    (row-major-aref array i)))
+    new-array)) ;return
 
 
 (defun copia-tabuleiro (tabuleiro)
@@ -252,7 +251,7 @@
   "recebe um tabuleiro e devvolve o array de booleans correspondente"
   (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
 	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
-    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta))))
+    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1) nil '(18 10))))
 
 
 (defun array->tabuleiro (array)
@@ -564,6 +563,4 @@
 		((equal p 't) peca-t))
 )
 
-
-
-
+;(load "utils.lisp")
