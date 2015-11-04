@@ -60,7 +60,7 @@
         e' representada por um boolean em que
         T representa uma casa preenchida e nil uma vazia
       altura-colunas: array numero de linhas por coluna
-      par-pos-mais-alta: par com linha e coluna da posicao mais alta
+      par-pos-mais-alta: par com linha e coluna da posicao mais alta e ultima posicao de memoria
       usadas-por-linha: array com numero de casas preenchidas por linha
       total-ocupadas: numero de casas preenchidas no tabuleiro"
 	campo-jogo
@@ -72,10 +72,10 @@
 
 (defun cria-tabuleiro ()
   "cria e inicia a estrutura tabuleiro"
-  (let ((campo (make-array (list +linhas+ +colunas+) :initial-element nil))
+  (let ((campo (make-array '(19  10) :initial-element nil)) ;uma linha extra 19 em vez de 18  para facilitar o remove linha
 	(alturas (make-array +colunas+ :initial-element 0))
 	(altura-maxima (cons 0 0))
-	(ocupadas-na-linha (make-array +linhas+ :initial-element 0))
+	(ocupadas-na-linha (make-array 19 :initial-element 0)) ;um nil extra para facilitar o remove linha
 	(casas-preenchidas 0))
 	(make-tabuleiro :campo-jogo campo
 			:altura-colunas alturas
@@ -178,7 +178,7 @@
 	(if (> altura (1+ linha-removida))
 	    (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
 	    (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))
-	(when (> (aref alturas i) maxima)
+	(when (> altura (aref alturas maxima))
 	  (setf maxima i)))))) ; pode haver vazio por baixo da linha
 
 
@@ -188,7 +188,7 @@
 	(linha-de-baixo (- linha 1)))
     (let ((ocupadas-linha-de-cima (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
       (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha-de-baixo) ocupadas-linha-de-cima) ;actualiza ocupadas na linha
-      (dotimes (i +colunas+) ;actualixa campo-jogo
+      (dotimes (i +colunas+) ;actualiza campo-jogo
 	(setf (aref campo-jogo linha-de-baixo i)
 	      (aref campo-jogo linha i))))))
 
@@ -203,7 +203,7 @@
 	  (linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro))))
       (setf (tabuleiro-total-ocupadas tabuleiro)
 	    (- total-ocupadas ocupadas-na-linha)) ;actualiza total ocupadas
-      (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempre no cilo
+      (dotimes (i (- (+ 2 linha-mais-alta) (incf linha)))  ; linha passa a ser linha+1 (linha de cima) no ciclo linha-mais-alta  mais dois por causa do incf para nao fazer inf linha sempreem cada iteracao do cilo
 	(desce-linha! tabuleiro (+ linha i)))
       (if (= linha-mais-alta 0)
 	  (setf  (tabuleiro-par-pos-mais-alta tabuleiro) '(0 . 0)) ;linha mais alta nao pode ser negativa
@@ -250,7 +250,9 @@
 
 (defun tabuleiro->array (tabuleiro)
   "recebe um tabuleiro e devvolve o array de booleans correspondente"
- (copia-array (tabuleiro-campo-jogo tabuleiro)))
+  (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
+	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
+    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1))))
 
 
 (defun array->tabuleiro (array)
@@ -518,3 +520,5 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
+
+;;(load (compile-file "testes-tab.lisp"))
