@@ -352,12 +352,14 @@
 			do (let* ((largura-peca (largura-peca peca-rodada))
 					; NOTA: nao se esta a verificar se uma peca e' mais larga que o tabuleiro
 					; segundo o enunciado e as pecas dadas, isso e' impossivel
-					(max-col (- +colunas+ largura-peca)))
+					(max-col (- +colunas+ largura-peca))
+					(lista-auxiliar '()))
 				;2.2
 				(loop for posicao upto max-col
-				do (setq accoes-possiveis
-						(cons (cria-accao posicao peca-rodada) accoes-possiveis)) ;2.3
+				do (setq lista-auxiliar (nconc lista-auxiliar (list(cria-accao posicao peca-rodada))));2.3
 				)
+				(setq accoes-possiveis
+						(nconc accoes-possiveis lista-auxiliar))
 			))
 		accoes-possiveis) ;3
 	)
