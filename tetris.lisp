@@ -354,9 +354,10 @@
 					; segundo o enunciado e as pecas dadas, isso e' impossivel
 					(max-col (- +colunas+ largura-peca)))
 				;2.2
-				(loop for posicao upto max-col
-				do (setq accoes-possiveis
-						(append  accoes-possiveis (list (cria-accao posicao peca-rodada)))) ;2.3
+				(loop for posicao from max-col downto 0
+				; as insercoes sao feitas no inicio da lista, entao o loop vai de coluna-maxima ate' 0
+				do (setq accoes-possiveis (cons (cria-accao posicao peca-rodada) accoes-possiveis))
+						;~ (append  accoes-possiveis (list (cria-accao posicao peca-rodada)))) ;2.3
 				)
 			))
 		accoes-possiveis) ;3
@@ -485,13 +486,15 @@
 
 
 ; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
-(defconstant peca-i (list peca-i0 peca-i1))
-(defconstant peca-l (list peca-l0 peca-l1 peca-l2 peca-l3))
-(defconstant peca-j (list peca-j0 peca-j1 peca-j2 peca-j3))
+; a ordem e' contraria ao esperada porque a lista de accoes e' criada recursivamente
+; ou seja, insercoes sao feitas no inicio e tem que se inverter a ordem
+(defconstant peca-i (list peca-i1 peca-i0))
+(defconstant peca-l (list peca-l3 peca-l2 peca-l1 peca-l0))
+(defconstant peca-j (list peca-j3 peca-j2 peca-j1 peca-j0))
 (defconstant peca-o (list peca-o0))
-(defconstant peca-s (list peca-s0 peca-s1))
-(defconstant peca-z (list peca-z0 peca-z1))
-(defconstant peca-t (list peca-t0 peca-t1 peca-t2 peca-t3))
+(defconstant peca-s (list peca-s1 peca-s0))
+(defconstant peca-z (list peca-z1 peca-z0))
+(defconstant peca-t (list peca-t3 peca-t2 peca-t1 peca-t0))
 
 ; precisamos de saber a pontuacao maxima para cada peca
 

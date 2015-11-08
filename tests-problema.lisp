@@ -88,11 +88,11 @@
 
 (defun testa-numero-accoes()
 	(let ((pecas (make-array 7 :initial-contents '(i l j o s z t)))
-		(n-opcoes (make-array 7 :initial-contents 
+		(n-opcoes (make-array 7 :initial-contents
 						(list   (+ 10 7)
 								(+ 9 9 8 8)
 								(+ 9 9 8 8)
-								9 
+								9
 								(+ 8 9)
 								(+ 8 9)
 								(+ 9 9 8 8)))))
@@ -100,17 +100,18 @@
 		do (let* ((estado (cria-estado (list (aref pecas i))))
 			(prob (cria-problema estado nil))
 			(accoes (accoes estado)))
-			
+
 			(if (= (length accoes)
 					(aref n-opcoes i))
 				(format t "accoes para peca ~a certas ~%" (aref pecas i))
-				(format t "accoes para ~a: ~D != ~D (obtidas v esperadas) ~%" 
+				(format t "accoes para ~a: ~D != ~D (obtidas v esperadas) ~%"
 					(aref pecas i) (aref n-opcoes i) (length accoes)))))
 ))
 
-(defun testa-resultado-1 ()
-	(let* ((prob (prob-0))
-		(estado (problema-estado-inicial prob))
+(defun testa-combinacoes ()
+	(let* ((peca 'j) ; mudar a peca para testar todas as combinacoes possiveis
+		(estado (cria-estado (list peca)))
+		(prob (cria-problema estado nil))
 		(accoes (funcall (problema-accoes prob) estado)))
 
 	(loop for accao-escolhida in accoes

@@ -8,7 +8,7 @@
 (defun tab-u ()
 	"tabuleiro em u"
 
-; BUG: preencher a mesma casa varias vezes aumenta nº de ocupadas-na-linha e nº total de casas ocupadas
+; BUG: preencher a mesma casa varias vezes aumenta numero de ocupadas-na-linha e numero total de casas ocupadas
 ; no entanto, isto nao obedece as regras do jogo
 
 	(let ((tab (cria-tabuleiro)))
@@ -148,7 +148,7 @@
 
 (defun tab-cheio ()
   "cria um tabuleiro cheio"
-  
+
   (let ((tabuleiro (cria-tabuleiro)))
     (dotimes (i +linhas+ tabuleiro)
       (dotimes (j  +colunas+)
