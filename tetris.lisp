@@ -38,8 +38,7 @@
 (defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
 
 
-;;; 2.1.1 - Tipo accao
-; TODO: pode-se usar array ou tem que ser copia?
+;;; *SECCAO* 2.1.1 - TIPO ACCAO
 (defun cria-accao (inteiro array)
 	(cons inteiro array)
 )
@@ -53,7 +52,7 @@
 )
 
 
-;;; 2.1.2 - TIPO TABULEIRO
+;;; *SECCAO* 2.1.2 - TIPO TABULEIRO
 (defstruct tabuleiro
   "estrutura que define o tipo tabuleiro de jogo
       campo-jogo: um array que representa o campo de jogo cada posicao
@@ -265,7 +264,7 @@
 
 
 
-;;; 2.1.3 - tipo Estado
+;;; *SECCAO* 2.1.3 - TIPO ESTADO
 
 (defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
 
@@ -311,12 +310,12 @@
 	)
 )
 
-;;;; 2.1.4 - tipo Problema
+;;;; *SECCAO* 2.1.4 - TIPO PROBLEMA
 (defstruct problema
 	estado-inicial solucao accoes resultado custo-caminho)
 
-;auxiliar
 (defun cria-problema (estado funcao-custo-caminho)
+"Criador de problemas auxiliar: as unicas coisas que variam sao o estado inicial e as funcoes de custo de caminho"
 	(make-problema :estado-inicial estado
 					:solucao #'solucao
 					:accoes #'accoes
@@ -324,25 +323,31 @@
 					:custo-caminho funcao-custo-caminho)
 )
 
-;;;; 2.2.1
-
-; um estado e' solucao quando nao ha mais pecas por colocar
-; e quando o topo nao esta preenchido !!
+;;;; *SECCAO* 2.2.1
 (defun solucao (estado)
+"Um estado e' solucao quando nao ha mais pecas por colocar e o topo nao esta preenchido"
 	(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
 		(null (estado-pecas-por-colocar estado)))
 )
 
-; 1. se (estado-final-p estado), retornar () (nada a fazer)
-; 2. tirar a primeira peca do estado
-;	2.1. para cada peca, obter possiveis rotacoes
-;	2.2. para cada rotacao, obter posicoes possiveis
-;	2.3. gerar accao com par peca e posicao e meter na lista
-; 3. devolver lista
+
 (defun accoes (estado)
+"Retorna a lista de accoes possiveis para um dado estado:
+	- combinacao de rotacoes e posicoes para a peca seguinte
+	- nil quando nao ha mais pecas
+	- nil quando o topo esta preenchido
+
+Descricao do algoritmo:
+	1. se (estado-final-p estado), retornar () (nada a fazer)
+	2. tirar a primeira peca do estado
+		2.1. para cada peca, obter possiveis rotacoes
+		2.2. para cada rotacao, obter posicoes possiveis
+		2.3. gerar accao com par peca e posicao e meter na lista
+	3. devolver lista
+	"
 	; 1
 	(if (estado-final-p estado)
-		nil ;t
+		nil
 		; 2
 		(let* ((primeira-peca (first (estado-pecas-por-colocar estado)))
 			(rotacoes (rotacoes-peca primeira-peca))
@@ -356,27 +361,31 @@
 				;2.2
 				(loop for posicao from max-col downto 0
 				; as insercoes sao feitas no inicio da lista, entao o loop vai de coluna-maxima ate' 0
-				do (setq accoes-possiveis (cons (cria-accao posicao peca-rodada) accoes-possiveis))
-						;~ (append  accoes-possiveis (list (cria-accao posicao peca-rodada)))) ;2.3
+				do (setq accoes-possiveis (cons (cria-accao posicao peca-rodada) accoes-possiveis)) ;2.3
 				)
 			))
 		accoes-possiveis) ;3
 	)
 )
 
-; 1. fazer copia do estado velho -> mudar sempre campos do estado novo !!
-	; 2. meter peca no tabuleiro novo
-	; 3. se houver linhas completas: verificar quais sao
-	;		Se a pecca e colocada num intervalo de colunas, basta verificar a altura dessas
-	;		A unica altura relevante e a minima de todas essas: se h(0)= 2 e h(1) = 5 -> linhas 3 a 5 nao podem estar preenchidas
-	;		Tambem se pode considerar o intervalo relevante tendo em conta a altura da peca:
-	;		se a peca tem altura=3, as unicas linhas que podem ter sido preenchidas sao h(colunas) - h(peca)
-	; 4. calcular pontuacao
-	; 5. eliminar linhas preenchidas
-	; 6. aumentar lista de pecas-colucadas
-	; 7. reduzir lista de pecas-por-colocar
-	; 8. retornar estado-novo
+
 (defun resultado (estado accao)
+"Aplica uma accao a um estado e retorna o estado resultante.
+
+Descricao do algoritmo:
+1. fazer copia do estado velho -> mudar sempre campos do estado novo !!
+	2. meter peca no tabuleiro novo
+	3. se houver linhas completas: verificar quais sao
+			Se a pecca e colocada num intervalo de colunas, basta verificar a altura dessas
+			A unica altura relevante e a minima de todas essas: se h(0)= 2 e h(1) = 5 -> linhas 3 a 5 nao podem estar preenchidas
+			Tambem se pode considerar o intervalo relevante tendo em conta a altura da peca:
+			se a peca tem altura=3, as unicas linhas que podem ter sido preenchidas sao h(colunas) - h(peca)
+	4. calcular pontuacao
+	5. eliminar linhas preenchidas
+	6. aumentar lista de pecas-colucadas
+	7. reduzir lista de pecas-por-colocar
+	8. retornar estado-novo"
+
 	;1
 	(let* ((estado-novo (copia-estado estado))
 			(tab-novo (estado-tabuleiro estado-novo))
@@ -421,21 +430,24 @@
 ; funcoes auxiliares para resolver problemas
 
 (defun tabuleiro-preenche-peca! (tab peca linha coluna)
-	"preenche-peca! recebe uma linha e coluna
-	e uma funcao auxiliar a funcao jogada, que so recebe uma coluna"
+"Funcao auxiliar que transpoe uma peca para um tabuleiro.
+Nao faz nenhuma verificao em especial - pode preencher por cima de outras pecas,
+ou colocar a peca numa posicao impossivel, por exemplo, a 'levitar' sem ter pecas por baixo.
+Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jogo em conta."
 
 	(let ((largura (largura-peca peca))
 		(altura (altura-peca peca)))
 
 		(loop for l upto (- altura 1)
 			do (loop for c upto (- largura 1)
-				; so preencher se posicao na peca for T
+				; so preencher se posicao da peca for T
+				; caso contrario, vai apagar pecas do tabuleiro para meter o nil da peca
 				do (if (aref peca l c)
 					(tabuleiro-preenche! tab (+ linha l) (+ coluna c)))))
 ))
 
 (defun tabuleiro-larga-peca! (tab peca coluna)
-	"larga-peca! recebe uma peca e coluna e faz uma jogada de tetris"
+"Faz uma jogada de tetris - dados um tabuleiro, peca e coluna, coloca a peca no sitio correcto."
 
 	(let* ((base (peca-base peca))
 		(largura (largura-peca peca))
@@ -448,9 +460,8 @@
 			do (setf (aref alturas-ajustadas c)
 				(- (aref alturas-ajustadas c) (aref base c))))
 
-		(setq max-altura (encontra-maximo alturas-ajustadas))
 		; ajustar linhas consoante a forma da peca
-
+		(setq max-altura (encontra-maximo alturas-ajustadas))
 
 		(tabuleiro-preenche-peca! tab peca max-altura coluna)
 
@@ -458,13 +469,13 @@
 ))
 
 
-(defun qualidade (estado) "retorna o simetrico do numero de pontos"
+(defun qualidade (estado) "Retorna o simetrico do numero de pontos"
 
 	(- (estado-pontos estado))
 )
 
 
-(defun custo-oportunidade (estado) "retorna maximo-pontos-possivel - pontos"
+(defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos"
 
 	(let ((max-pontos 0))
 		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
@@ -473,8 +484,6 @@
 		(- max-pontos (estado-pontos estado))
 	)
 )
-
-
 
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
@@ -506,7 +515,8 @@
 (defconstant +pontos-peca-t+ 300)
 (defconstant +pontos-peca-o+ 300)
 
-(defun pontos-por-peca (peca) "pontos maximos que a peca permite ganhar"
+(defun pontos-por-peca (peca) 
+"Pontos maximos que a peca permite ganhar."
 	(cond
 		((equal peca 'i) +pontos-peca-i+)
 		((equal peca 'j) +pontos-peca-j+)
@@ -520,17 +530,21 @@
 
 (defun peca-base (p)
 ; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
-	"e importante conhecer a base da peca para saber onde a encaixar
-	enquanto um quadrado e' trivial - encaixa na altura mais alta que encontrar
-	um l deitado nao - pode encaixar no meio de buracos
+"E' importante conhecer a base da peca para saber onde a encaixar
+enquanto que um quadrado e' trivial - encaixa na altura mais alta por baixo dele
+um l deitado nao - pode encaixar no meio de buracos
 
-	exemplos:
-		linhas-base (peca-i0): (0 0 0 0)
-		linhas-base (peca-s0): (0 0 1)"
+esta funcao ajuda outras funcoes a corrigirem a altura a' qual uma peca largada deve ficar
+dependendo da forma da forma da sua base e das pecas que estao por debaixo dela
+
+exemplos:
+	linhas-base (peca-i0): (0 0 0 0)
+	linhas-base (peca-s0): (0 0 1)
+"
 
 	(let* ((largura (largura-peca p))
 		(altura (altura-peca p))
-		; o valor 100 e' usado para calcular a altura da base, ver comentarios abaixo
+		; o valor 100 e' um valor alto arbitrario
 		(alturas-base (make-array largura :initial-element 100)))
 
 		(loop for l upto (- altura 1)
@@ -538,24 +552,26 @@
 			do (if (aref p l c)
 					(setf (aref alturas-base c)
 						; a base e so o primeiro quadrado preenchido
-						; com min, asseguramos que nao volta a contar quadrados
+						; com min, asseguramos que repete a contagem de quadrados
 						; requisitos: o valor inicial deve ser bem alto devido ao min: entao escolheu-se 100
-						; TODO: isto nao e' muito eficiente:
-						; uma melhoria seria fazer isto uma unica vez por execucao ja que as pecas nunca mudam
+						
+						;FIXME: talvez se possa usar um break no loop mais de dentro
 						(min l (aref alturas-base c))))))
-
 		alturas-base
 ))
 
 (defun altura-peca (p)
+"Calcula a altura de uma peca de forma mais abstracta."
 	(array-dimension p 0)
 )
 
 (defun largura-peca (p)
+"Calcula a largura de uma peca de forma mais abstracta."
 	(array-dimension p 1)
 )
 
 (defun rotacoes-peca (p)
+"Devolve uma lista de rotacoes possiveis para cada peca."
 	(cond
 		((equal p 'i) peca-i)
 		((equal p 'l) peca-l)
@@ -565,5 +581,3 @@
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
 )
-
-;(load "utils.lisp")
