@@ -1,4 +1,4 @@
-; Grupo 64:  	73008 	Duarte Pinto Pompeu	 	76765 	António Joaquim Sousa Glória	 	76338 	Márcio António Filipe dos Santos
+; Grupo 64:  	73008 	Duarte Pinto Pompeu	 	76765 	Antonio Joaquim Sousa Gloria	 	76338 	Marcio Antonio Filipe dos Santos
 
 ; CARACTERES NAO ASCII: [^\x00-\x7F]+
 ; basta pesquisarem com regex, caso o vosso editor suporte
