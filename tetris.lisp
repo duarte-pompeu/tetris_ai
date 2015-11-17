@@ -517,7 +517,7 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 (defconstant +pontos-peca-t+ 300)
 (defconstant +pontos-peca-o+ 300)
 
-(defun pontos-por-peca (peca) 
+(defun pontos-por-peca (peca)
 "Pontos maximos que a peca permite ganhar."
 	(cond
 		((equal peca 'i) +pontos-peca-i+)
@@ -556,7 +556,7 @@ exemplos:
 						; a base e so o primeiro quadrado preenchido
 						; com min, asseguramos que repete a contagem de quadrados
 						; requisitos: o valor inicial deve ser bem alto devido ao min: entao escolheu-se 100
-						
+
 						;FIXME: talvez se possa usar um break no loop mais de dentro
 						(min l (aref alturas-base c))))))
 		alturas-base
@@ -582,4 +582,53 @@ exemplos:
 		((equal p 's) peca-s)
 		((equal p 'z) peca-z)
 		((equal p 't) peca-t))
+)
+
+;;; 2.2.1
+
+; estrategia - dada uma lista de candidatos, escolhe o candidato
+; queue-func - escolhe como os novos candidatos são inseridos na lista
+(defun general-search (estado estrategia queue-func)
+	(let* ((accoes-candidatas (accoes estado)))
+
+	(desenha-estado estado)
+
+	(loop while accoes-candidatas
+	do (progn
+		; escolher accao e retirar da lista
+		(let* ((resultado-estrategia (funcall estrategia accoes-candidatas))
+			(accao-escolhida (car resultado-estrategia)))
+
+		(setf accoes-candidatas (cdr resultado-estrategia))
+
+
+		(general-search (resultado estado accao-escolhida)
+		estrategia queue-func)
+)))))
+
+; a funcao primeiro fora retorna:
+; cdr - escolhe o candidato
+; car - retorna lista que corresponde a retira-lo da lista de candidatos
+(defun primeiro-fora (lista-candidatos)
+	(cons (first lista-candidatos) (rest lista-candidatos))
+)
+
+; > (enqueue-front '(1 2 3) '(4 5 6))
+; (1 2 3 4 5 6)
+; we recursive now
+(defun enqueue-front (lista-novos lista-velhos)
+	(cond ((null lista-velhos) nil)
+		((null lista-novos)
+			(cons (first lista-velhos)
+				(enqueue-front lista-novos (rest lista-velhos))))
+		(t (cons (first lista-novos)
+			(enqueue-front (rest lista-novos) lista-velhos)))
+))
+
+; exemplo de utilizacao
+; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
+(defun procura-pp (problema)
+	(general-search (problema-estado-inicial problema)
+		(function primeiro-fora)
+		(function enqueue-front))
 )
