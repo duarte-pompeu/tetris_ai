@@ -10,6 +10,7 @@
 	(load "tests.lisp")
 	(load "testes-tab.lisp")
 	(load "tests-problema.lisp")
+	(load "testa-pp.lisp")
 )
 
 
@@ -591,19 +592,29 @@ exemplos:
 (defun general-search (estado estrategia queue-func)
 	(let* ((accoes-candidatas (accoes estado)))
 
-	(desenha-estado estado)
+	(cond ((solucao estado) (return-from general-search t))
+		((null accoes-candidatas) (return-from general-search nil)))
 
 	(loop while accoes-candidatas
 	do (progn
 		; escolher accao e retirar da lista
 		(let* ((resultado-estrategia (funcall estrategia accoes-candidatas))
-			(accao-escolhida (car resultado-estrategia)))
+			(accao-escolhida (car resultado-estrategia))
+			(resultado nil))
 
+		; usado para controlar o loop
 		(setf accoes-candidatas (cdr resultado-estrategia))
 
+		(setf resultado (general-search (resultado estado accao-escolhida)estrategia queue-func))
 
-		(general-search (resultado estado accao-escolhida)
-		estrategia queue-func)
+		; se ha um resultado
+		(if resultado
+			; se resultado for lista, fazer prepend da accao
+			(if (listp resultado)
+				(return-from general-search (cons accao-escolhida resultado))
+				; caso contrario, quer dizer que e a ultima peca - iniciar lista
+				(return-from general-search (cons accao-escolhida nil))))
+
 )))))
 
 ; a funcao primeiro fora retorna:
