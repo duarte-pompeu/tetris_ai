@@ -492,8 +492,6 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
 ; - se chamamos as funcoes m e n do "utils.fas", temos que fazer load do ficheiro primeiro
-
-; FIXME: o "utils.fas" usa uma funcao "formulacao-problema" que nao esta definida. what do?
  (load "utils.fas")
 ;(load (compile-file "utils.lisp"))
 
@@ -624,15 +622,17 @@ exemplos:
 )
 
 ; > (enqueue-front '(1 2 3) '(4 5 6))
-; (1 2 3 4 5 6)
-; we recursive now
-(defun enqueue-front (lista-novos lista-velhos)
-	(cond ((null lista-velhos) nil)
-		((null lista-novos)
-			(cons (first lista-velhos)
-				(enqueue-front lista-novos (rest lista-velhos))))
-		(t (cons (first lista-novos)
-			(enqueue-front (rest lista-novos) lista-velhos)))
+; (4 5 6 1 2 3)
+(defun enqueue-front (nos-actuais nos-expandidos)
+	"adiciona novos nos a frente dos nos-actuais
+	nao tem em atencao o custo de caminho"
+	
+	(let ((nos-a-adicionar (reverse nos-expandidos)))
+
+		(loop while (not (null nos-a-adicionar))
+		do (push (pop nos-a-adicionar) nos-actuais))
+		
+	nos-actuais
 ))
 
 
@@ -642,7 +642,7 @@ exemplos:
 	(let* ((estado-inicial (problema-estado-inicial problema))
 					; estado no-pai operador profundidade custo-caminho
 		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0))
-		(nos (make-queue (list no-inicial))))
+		(nos (make-queue no-inicial)))
 		
 	(loop while T
 	do (progn
@@ -652,61 +652,21 @@ exemplos:
 			(return-from general-search nil))
 		
 		; node <- remove-front (nodes)
-		(let* ((no (first nos)))
-			(setf nos (rest nos))
+		(let ((no (pop nos)))
 			
 		; if goal-test(problem) applied to state(node) succeeds: return node
-		(if (resultado (no-estado no))
+		; FIXME: esta a dar erro aqui
+		(if (solucao (no-estado no))
 			(return-from general-search no))
 		
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
-		(setf nos (queueing-fn (nos (expande-no no))))
-		)
-	))	
-		
+		(setf nos (funcall queuing-fn nos (expande-no no))))
+	))
 ))
-
-; estrategia - dada uma lista de candidatos, escolhe o candidato
-; queue-func - escolhe como os novos candidatos são inseridos na lista
-(defun general-search-old (estado estrategia queue-func)
-	(let* ((accoes-candidatas (accoes estado)))
-
-	(cond ((solucao estado) (return-from general-search t))
-		((null accoes-candidatas) (return-from general-search nil)))
-
-	(loop while accoes-candidatas
-	do (progn
-		; escolher accao e retirar da lista
-		(let* ((resultado-estrategia (funcall estrategia accoes-candidatas))
-			(accao-escolhida (car resultado-estrategia))
-			(resultado nil))
-
-		; usado para controlar o loop
-		(setf accoes-candidatas (cdr resultado-estrategia))
-
-		(setf resultado (general-search (resultado estado accao-escolhida)estrategia queue-func))
-
-		; se ha um resultado
-		(if resultado
-			; se resultado for lista, fazer prepend da accao
-			(if (listp resultado)
-				(return-from general-search (cons accao-escolhida resultado))
-				; caso contrario, quer dizer que e a ultima peca - iniciar lista
-				(return-from general-search (cons accao-escolhida nil))))
-
-)))))
-
-; a funcao primeiro fora retorna:
-; cdr - escolhe o candidato
-; car - retorna lista que corresponde a retira-lo da lista de candidatos
-(defun primeiro-fora (lista-candidatos)
-	(cons (first lista-candidatos) (rest lista-candidatos))
-)
 
 ; exemplo de utilizacao
 ; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
 (defun procura-pp (problema)
-	(general-search (problema-estado-inicial problema)
-		(function primeiro-fora)
+	(general-search problema
 		(function enqueue-front))
 )

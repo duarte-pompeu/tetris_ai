@@ -30,6 +30,14 @@
 		o o o o o o o o o o o o o o o o o o o o o ))
 )
 
+(defun pp3()
+	(testa-pp '(o))
+)
+
+(defun pp4()
+	(testa-pp '())
+)
+
 
 (defun grupo-executa-jogadas (estado-inicial sequencia-jogadas)
 	(let ((estado estado-inicial))
