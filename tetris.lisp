@@ -594,6 +594,26 @@ exemplos:
 )
 
 
+;; ainda tem bugs
+(defun expande-no (no-pai)
+	(let* ((estado-inicial (no-estado no-pai))
+		; reverse porque queremos tirar elemento de uma lista, transformalo num no e metelo numa nova lista sem alterar a ordem
+		(accoes (reverse (accoes estado-inicial)))
+		(profundidade (1+ (no-profundidade no-pai)))
+		(lista-nos nil))
+		
+		
+		(loop for accao in accoes
+		do (let* ((estado-resultante (resultado estado accao))
+			(custo-caminho (qualidade estado-resultante))
+			(no-filho (make-no estado-resultante no-pai profundidade custo-caminho)))
+			
+			(push lista-nos no-filho)))
+			
+	lista-nos
+))
+
+
 (defun make-queue (&rest args)
 	args
 )
@@ -601,10 +621,6 @@ exemplos:
 (defun empty (queue)
 	(and (listp queue)
 		(null queue))
-)
-
-(defun remove-front (queue)
-	(rest queue)
 )
 
 ; > (enqueue-front '(1 2 3) '(4 5 6))
@@ -620,11 +636,34 @@ exemplos:
 ))
 
 
-(defun general-search (problema estrategia)
+;; ainda tem bugs
+(defun general-search (problema queuing-fn)
 	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
 	(let* ((estado-inicial (problema-estado-inicial problema))
-		(no-inicial (make-no estado-inicial nil 0 0))
-		(fila-nos (make-queue (list no-inicial))))
+					; estado no-pai operador profundidade custo-caminho
+		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0))
+		(nos (make-queue (list no-inicial))))
+		
+	(loop while T
+	do (progn
+		
+		; if nodes is empty: return failure
+		(if (empty nos)
+			(return-from general-search nil))
+		
+		; node <- remove-front (nodes)
+		(let* ((no (first nos)))
+			(setf nos (rest nos))
+			
+		; if goal-test(problem) applied to state(node) succeeds: return node
+		(if (resultado (no-estado no))
+			(return-from general-search no))
+		
+		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
+		(setf nos (queueing-fn (nos (expande-no no))))
+		)
+	))	
+		
 ))
 
 ; estrategia - dada uma lista de candidatos, escolhe o candidato
