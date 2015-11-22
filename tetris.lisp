@@ -11,6 +11,7 @@
 	(load "testes-tab.lisp")
 	(load "tests-problema.lisp")
 	(load "testa-pp.lisp")
+	(load "nos.lisp")
 )
 
 
@@ -594,9 +595,8 @@ exemplos:
 )
 
 
-;; ainda tem bugs
 (defun expande-no (no-pai)
-	(let* ((estado-inicial (no-estado no-pai))
+	(let* ((estado-inicial (copia-estado (no-estado no-pai)))
 		; reverse porque queremos tirar elemento de uma lista, transformalo num no e metelo numa nova lista sem alterar a ordem
 		(accoes (reverse (accoes estado-inicial)))
 		(profundidade (1+ (no-profundidade no-pai)))
@@ -604,11 +604,11 @@ exemplos:
 		
 		
 		(loop for accao in accoes
-		do (let* ((estado-resultante (resultado estado accao))
+		do (let* ((estado-resultante (resultado estado-inicial accao))
 			(custo-caminho (qualidade estado-resultante))
-			(no-filho (make-no estado-resultante no-pai profundidade custo-caminho)))
+			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho)))
 			
-			(push lista-nos no-filho)))
+			(setf lista-nos (cons no-filho lista-nos))))
 			
 	lista-nos
 ))
