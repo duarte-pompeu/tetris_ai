@@ -585,11 +585,51 @@ exemplos:
 		((equal p 't) peca-t))
 )
 
-;;; 2.2.1
+;;; 2.2.2 - PROCURAS
+
+; GENERAL SEARCH
+
+(defstruct no
+	estado no-pai operador profundidade custo-caminho
+)
+
+
+(defun make-queue (&rest args)
+	args
+)
+
+(defun empty (queue)
+	(and (listp queue)
+		(null queue))
+)
+
+(defun remove-front (queue)
+	(rest queue)
+)
+
+; > (enqueue-front '(1 2 3) '(4 5 6))
+; (1 2 3 4 5 6)
+; we recursive now
+(defun enqueue-front (lista-novos lista-velhos)
+	(cond ((null lista-velhos) nil)
+		((null lista-novos)
+			(cons (first lista-velhos)
+				(enqueue-front lista-novos (rest lista-velhos))))
+		(t (cons (first lista-novos)
+			(enqueue-front (rest lista-novos) lista-velhos)))
+))
+
+
+(defun general-search (problema estrategia)
+	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
+	(let* ((estado-inicial (problema-estado-inicial problema))
+		(no-inicial (make-no estado-inicial nil 0 0))
+		(fila-nos (make-queue (list no-inicial))))
+))
 
 ; estrategia - dada uma lista de candidatos, escolhe o candidato
 ; queue-func - escolhe como os novos candidatos são inseridos na lista
-(defun general-search (estado estrategia queue-func)
+(defun general-search-old (estado estrategia queue-func)
 	(let* ((accoes-candidatas (accoes estado)))
 
 	(cond ((solucao estado) (return-from general-search t))
@@ -623,18 +663,6 @@ exemplos:
 (defun primeiro-fora (lista-candidatos)
 	(cons (first lista-candidatos) (rest lista-candidatos))
 )
-
-; > (enqueue-front '(1 2 3) '(4 5 6))
-; (1 2 3 4 5 6)
-; we recursive now
-(defun enqueue-front (lista-novos lista-velhos)
-	(cond ((null lista-velhos) nil)
-		((null lista-novos)
-			(cons (first lista-velhos)
-				(enqueue-front lista-novos (rest lista-velhos))))
-		(t (cons (first lista-novos)
-			(enqueue-front (rest lista-novos) lista-velhos)))
-))
 
 ; exemplo de utilizacao
 ; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
