@@ -12,6 +12,7 @@
 	(load "tests-problema.lisp")
 	(load "testa-pp.lisp")
 	(load "nos.lisp")
+	(load "gerador.lisp")
 )
 
 
@@ -599,15 +600,15 @@ exemplos:
 		(accoes (reverse (accoes estado-inicial)))
 		(profundidade (1+ (no-profundidade no-pai)))
 		(lista-nos nil))
-		
-		
+
+
 		(loop for accao in accoes
 		do (let* ((estado-resultante (resultado estado-inicial accao))
 			(custo-caminho (qualidade estado-resultante))
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho)))
-			
-			(setf lista-nos (cons no-filho lista-nos))))
-			
+
+			(push no-filho lista-nos)))
+
 	lista-nos
 ))
 
@@ -626,12 +627,12 @@ exemplos:
 (defun enqueue-front (nos-actuais nos-expandidos)
 	"adiciona novos nos a frente dos nos-actuais
 	nao tem em atencao o custo de caminho"
-	
+
 	(let ((nos-a-adicionar (reverse nos-expandidos)))
 
 		(loop while (not (null nos-a-adicionar))
 		do (push (pop nos-a-adicionar) nos-actuais))
-		
+
 	nos-actuais
 ))
 
@@ -643,22 +644,24 @@ exemplos:
 					; estado no-pai operador profundidade custo-caminho
 		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0))
 		(nos (make-queue no-inicial)))
-		
+
 	(loop while T
 	do (progn
-		
+
 		; if nodes is empty: return failure
 		(if (empty nos)
 			(return-from general-search nil))
-		
+
 		; node <- remove-front (nodes)
 		(let ((no (pop nos)))
-			
+
+		;~ (desenha-estado (no-estado no))
+
 		; if goal-test(problem) applied to state(node) succeeds: return node
 		; FIXME: esta a dar erro aqui
 		(if (solucao (no-estado no))
 			(return-from general-search no))
-		
+
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
 		(setf nos (funcall queuing-fn nos (expande-no no))))
 	))

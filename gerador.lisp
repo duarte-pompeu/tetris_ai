@@ -10,9 +10,10 @@
 		lista-pecas
 ))
 
-(defun prob-10-i ()
+;  (testa-pp (cria-problema (estado-10-i) nil))
+(defun pecas-10-i ()
 	"estado com 10 'i's
 	uma solucao optima deve devolver uma pontuacao de 800"
 
-	(cria-estado (n-pecas-iguais 'l 10))
+	(n-pecas-iguais 'i 10)
 )

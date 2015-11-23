@@ -10,13 +10,26 @@
 	;(function executa-jogadas)
 )
 
+(defun nos->accoes (no-objectivo)
+	(let ((no-actual no-objectivo)
+		(accoes nil))
+
+		(loop while (no-no-pai no-actual)
+		do (progn
+			(push (no-operador no-actual) accoes))
+			(setf no-actual (no-no-pai no-actual))
+		)
+
+	accoes
+))
+
 
 (defun testa-pp (lista-pecas)
 	(let* ((estado (cria-estado lista-pecas))
 		(sequencia-solucao
 			(procura-pp (cria-problema estado nil))))
 
-		(funcall (desenha-jogada) estado sequencia-solucao)
+	 (funcall (desenha-jogada) estado (nos->accoes sequencia-solucao))
 ))
 
 
