@@ -587,7 +587,8 @@ exemplos:
 
 ;;; 2.2.2 - PROCURAS
 
-; GENERAL SEARCH
+
+;; tipo no'
 
 (defstruct no
 	estado no-pai operador profundidade custo-caminho
@@ -613,6 +614,15 @@ exemplos:
 ))
 
 
+(defun no-menor (n1 n2)
+	"Devolve T se o valor de f de n1 for menor que o de n2"
+	
+	(<= (no-custo-caminho n1) (no-custo-caminho n2))
+)
+
+
+;; funcoes para filas
+
 (defun make-queue (&rest args)
 	args
 )
@@ -637,6 +647,17 @@ exemplos:
 ))
 
 
+(defun enqueue-by-value (nos-actuais nos-novos)
+	"Adiciona os novos nos e mantem a lista ordenada"
+	
+	(let* ((todos (nconc nos-actuais nos-novos)))
+		(stable-sort todos #'no-menor)
+		
+		todos
+	)
+)
+
+;; general search
 ;; ainda tem bugs
 (defun general-search (problema queuing-fn)
 	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
@@ -673,3 +694,25 @@ exemplos:
 	(general-search problema
 		(function enqueue-front))
 )
+
+
+;; best first search
+
+(defun best-first-search (problema funcao-avaliacao)
+	"algoritmo generico para as procuras melhor-primeiro"
+	
+	(general-search problema funcao-avaliacao)
+)
+
+
+;; procura-A*
+
+(defun procura-A* (problema)
+	"ordenacao por valor de f = g + h"
+	
+	(best-first-search problema #'enqueue-by-value)
+)
+
+
+
+
