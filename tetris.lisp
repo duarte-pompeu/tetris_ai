@@ -587,8 +587,9 @@ exemplos:
 
 ;;; 2.2.2 - PROCURAS
 
-
-;; tipo no'
+;;;;;;;;;;;
+;;  NOS  ;;
+;;;;;;;;;;;
 
 (defstruct no
 	estado no-pai operador profundidade custo-caminho
@@ -605,6 +606,8 @@ exemplos:
 
 		(loop for accao in accoes
 		do (let* ((estado-resultante (resultado estado-inicial accao))
+
+			;FIXME: tem que receber a funcao qualidade como argumento
 			(custo-caminho (qualidade estado-resultante))
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho)))
 
@@ -614,20 +617,39 @@ exemplos:
 ))
 
 
+(defun nos->accoes (no-objectivo)
+	(let ((no-actual no-objectivo)
+		(accoes nil))
+
+		(loop while (no-no-pai no-actual)
+		do (progn
+			(push (no-operador no-actual) accoes))
+			(setf no-actual (no-no-pai no-actual))
+		)
+
+	accoes
+))
+
+
 (defun no-menor (n1 n2)
 	"Devolve T se o valor de f de n1 for menor que o de n2"
-	
+
 	(<= (no-custo-caminho n1) (no-custo-caminho n2))
 )
 
 
-;; funcoes para filas
-
+;;;;;;;;;;;;
+;;  FILAS ;;
+;;;;;;;;;;;;
 (defun make-queue (&rest args)
+	"Faz uma fila com os elementos de 'args'"
+
 	args
 )
 
 (defun empty (queue)
+	"Verifica se fila esta' vazia"
+
 	(and (listp queue)
 		(null queue))
 )
@@ -635,8 +657,8 @@ exemplos:
 ; > (enqueue-front '(1 2 3) '(4 5 6))
 ; (4 5 6 1 2 3)
 (defun enqueue-front (nos-actuais nos-expandidos)
-	"adiciona novos nos a frente dos nos-actuais
-	nao tem em atencao o custo de caminho"
+	"Adiciona novos nos a frente dos nos-actuais.
+	Nao tem em atencao o custo de caminho."
 
 	(let ((nos-a-adicionar (reverse nos-expandidos)))
 
@@ -649,20 +671,27 @@ exemplos:
 
 (defun enqueue-by-value (nos-actuais nos-novos)
 	"Adiciona os novos nos e mantem a lista ordenada"
-	
+
 	(let* ((todos (nconc nos-actuais nos-novos)))
 		(stable-sort todos #'no-menor)
-		
+
 		todos
 	)
 )
 
-;; general search
-;; ainda tem bugs
+;;;;;;;;;;;;;;;;
+;;  PROCURAS  ;;
+;;;;;;;;;;;;;;;;
+
+;; nao parece ter bugs mas pode ser melhor testada
 (defun general-search (problema queuing-fn)
+	"Executa uma pesquisa generica.
+	 Pode ser utilizada por varios algoritmos de pesquisa, que apenas tem que fornecer uma queuing-function adequada.
+	 Tenta implementar rigorosamente o pseudo-codigo do manual da disciplina."
+	; os comentarios em ingles sao retirados do pseudo-codigo do manual, para melhor referencia
+
 	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
 	(let* ((estado-inicial (problema-estado-inicial problema))
-					; estado no-pai operador profundidade custo-caminho
 		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0))
 		(nos (make-queue no-inicial)))
 
@@ -676,11 +705,8 @@ exemplos:
 		; node <- remove-front (nodes)
 		(let ((no (pop nos)))
 
-		;~ (desenha-estado (no-estado no))
-
 		; if goal-test(problem) applied to state(node) succeeds: return node
-		; FIXME: esta a dar erro aqui
-		(if (solucao (no-estado no))
+		(if (funcall (problema-solucao problema) (no-estado no))
 			(return-from general-search no))
 
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
@@ -691,8 +717,10 @@ exemplos:
 ; exemplo de utilizacao
 ; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
 (defun procura-pp (problema)
-	(general-search problema
-		(function enqueue-front))
+	"Utiliza general-search e enqueue-front (funcao de enqueue em que nos expandidos vao para o inicio da fila)
+	para efectar uma procura em profundidade primeiro."
+	(nos->accoes
+		(general-search problema (function enqueue-front)))
 )
 
 
@@ -700,7 +728,7 @@ exemplos:
 
 (defun best-first-search (problema funcao-avaliacao)
 	"algoritmo generico para as procuras melhor-primeiro"
-	
+
 	(general-search problema funcao-avaliacao)
 )
 
@@ -709,10 +737,6 @@ exemplos:
 
 (defun procura-A* (problema)
 	"ordenacao por valor de f = g + h"
-	
+
 	(best-first-search problema #'enqueue-by-value)
 )
-
-
-
-
