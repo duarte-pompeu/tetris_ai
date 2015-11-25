@@ -619,6 +619,9 @@ exemplos:
 
 
 (defun nos->accoes (no-objectivo)
+	(if (null no-objectivo)
+		(return-from nos->accoes nil))
+	
 	(let ((no-actual no-objectivo)
 		(accoes nil))
 
