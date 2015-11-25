@@ -2,24 +2,69 @@
 
 (defvar *tabuleiros* nil)
 
-; FIXME:
-; nao se pode alterar as pecas sem alterar alturas
-; alterei tabuleiros para testes e nao tive isso em conta
-(defun t1 ()
-	#S(TABULEIRO   :CAMPO-JOGO   #2A((T T NIL T T T T T T T)       (T T T T NIL T T T T T)       (T T T NIL T T T T T T)       (T NIL T T T T T NIL NIL T)       (NIL T T T T NIL NIL NIL T T)       (NIL T T T NIL NIL NIL T T T)       (T NIL T T NIL T T T NIL T)       (NIL NIL T NIL T NIL T T T T)       (NIL T T T T T T T T NIL)       (NIL T T T T NIL NIL T NIL NIL)       (T NIL NIL T NIL NIL NIL T NIL T)       (NIL NIL NIL T NIL T NIL T T NIL)       (NIL NIL NIL NIL NIL NIL NIL T NIL T)       (NIL NIL NIL T T T T NIL T NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(11 10 17 14 14 14 14 13 15 13) :PAR-POS-MAIS-ALTA (16 . 2)   :OCUPADAS-NA-LINHA #(9 9 9 7 6 6 7 6 8 5 4 4 2 5 2 0 1 0 0)   :TOTAL-OCUPADAS 90)
-)
-
-(defun t2 ()
-	#S(TABULEIRO   :CAMPO-JOGO   #2A((T T T T T T T T NIL T)       (T T NIL T T NIL T T T T)       (T T NIL T T T T T T NIL)       (T T T T T NIL T T T T)       (NIL T T T NIL T T T T T)       (T T NIL T NIL T NIL NIL T T)       (T NIL T NIL NIL T NIL NIL T T)       (T NIL NIL T T NIL T T T T)       (NIL T NIL T T NIL T NIL T T)       (T T T NIL T T NIL T NIL NIL)       (NIL NIL T NIL NIL NIL NIL T NIL NIL)       (NIL NIL T NIL T NIL T NIL NIL T)       (NIL NIL NIL T NIL NIL T T NIL T)       (T NIL NIL NIL NIL T NIL NIL NIL NIL)       (NIL T T T NIL T NIL NIL T NIL)       (NIL NIL NIL NIL NIL NIL T NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL T NIL)       (NIL T NIL T NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(14 18 15 18 12 15 16 13 17 13) :PAR-POS-MAIS-ALTA (17 . 3)   :OCUPADAS-NA-LINHA #(9 8 8 9 8 6 5 7 6 6 2 4 4 2 5 1 1 2 0)   :TOTAL-OCUPADAS 93)
-)
-
-(defun t3 ()
-	#S(TABULEIRO   :CAMPO-JOGO   #2A((NIL T NIL NIL T T NIL T NIL T)       (T NIL NIL NIL T NIL T T NIL NIL)       (T NIL NIL NIL T NIL NIL T NIL NIL)       (T T NIL NIL T NIL NIL T T T)       (NIL T NIL T NIL T NIL T NIL NIL)       (T NIL NIL NIL NIL T NIL NIL T NIL)       (T NIL T NIL NIL T NIL NIL T NIL)       (T NIL NIL T T NIL T T T T)       (NIL T NIL T T NIL T NIL T T)       (T T T NIL T NIL NIL T NIL NIL)       (NIL NIL T NIL NIL NIL NIL T NIL NIL)       (NIL NIL T NIL T NIL T NIL NIL T)       (NIL NIL NIL T T NIL T T NIL T)       (T T NIL NIL NIL T NIL NIL NIL NIL)       (NIL T T T NIL T NIL T T NIL)       (NIL NIL NIL NIL NIL NIL T NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL T T T)       (T T NIL T NIL T T T NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(18 18 15 18 13 18 18 18 17 17) :PAR-POS-MAIS-ALTA (17 . 7)   :OCUPADAS-NA-LINHA #(5 4 3 6 4 3 4 7 6 5 2 4 5 3 6 1 3 6 0)   :TOTAL-OCUPADAS 77)
-)
-
-(push (t3) *tabuleiros*)
-(push (t2) *tabuleiros*)
-(push (t1) *tabuleiros*)
+(setf tabteste1 #S(TABULEIRO   :CAMPO-JOGO   #2A((NIL NIL T T NIL NIL T NIL NIL NIL)       (NIL NIL NIL NIL T T NIL NIL NIL NIL)       (NIL NIL NIL NIL T NIL NIL NIL NIL T)       (NIL NIL NIL NIL NIL T NIL NIL NIL NIL)       (NIL T T NIL T NIL NIL NIL NIL NIL)       (NIL NIL NIL T NIL NIL NIL T NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL T NIL NIL T NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (T NIL T NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL T NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL T)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(10 5 10 6 5 8 1 12 0 14) :PAR-POS-MAIS-ALTA (13 . 9)   :OCUPADAS-NA-LINHA #(3 2 2 1 3 2 0 2 0 2 0 1 0 1 0 0 0 0 0)   :TOTAL-OCUPADAS 19))
+;~ +---------------------+
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ |                   # |
+;~ |                     |
+;~ |               #     |
+;~ |                     |
+;~ | #   #               |
+;~ |                     |
+;~ |     #     #         |
+;~ |                     |
+;~ |       #       #     |
+;~ |   # #   #           |
+;~ |           #         |
+;~ |         #         # |
+;~ |         # #         |
+;~ |     # #     #       |
+;~ +---------------------+
+(setf tabteste2 #S(TABULEIRO   :CAMPO-JOGO   #2A((T T T T T T T T NIL T)       (NIL T T NIL T T T NIL T T)       (NIL T T T T T NIL T NIL T)       (T NIL NIL T T T T T T NIL)       (T T T NIL T NIL NIL NIL NIL T)       (NIL NIL NIL T NIL T NIL T NIL NIL)       (T NIL NIL T NIL T NIL T T NIL)       (NIL NIL T NIL T T NIL NIL NIL NIL)       (T NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (T NIL T NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(10 5 10 7 8 8 4 7 7 5) :PAR-POS-MAIS-ALTA (9 . 2)   :OCUPADAS-NA-LINHA #(9 7 7 7 5 3 5 3 1 2 0 0 0 0 0 0 0 0 0)   :TOTAL-OCUPADAS 49))
+;~ +---------------------+
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ |                     |
+;~ | #   #               |
+;~ | #                   |
+;~ |     #   # #         |
+;~ | #     #   #   # #   |
+;~ |       #   #   #     |
+;~ | # # #   #         # |
+;~ | #     # # # # # #   |
+;~ |   # # # # #   #   # |
+;~ |   # #   # # #   # # |
+;~ | # # # # # # # #   # |
+;~ +---------------------+
+(setf tabteste-impossivel #S(TABULEIRO   :CAMPO-JOGO   #2A((T T T T T T T T NIL T)       (NIL T T T T T T T T T)       (T T T T T T T T NIL T)       (T T NIL T T T T T T T)       (T T T T T T T T NIL T)       (T T T T T T T T NIL T)       (T T T T T T T T T NIL)       (NIL T T T T T T T T T)       (T NIL T T T T T T T T)       (T T T T T T T T NIL T)       (T T T T T T T NIL T T)       (T T T T NIL T T T T T)       (T T T T T T NIL T T T)       (T T T NIL T T T T T T)       (T T T NIL T T T T T T)       (NIL T T T T T T T T T)       (T T T T NIL T T T T T)       (T NIL T T T T T T T T)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(18 17 18 18 18 18 18 18 18 18) :PAR-POS-MAIS-ALTA (17 . 9)   :OCUPADAS-NA-LINHA #(9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 0)   :TOTAL-OCUPADAS 162))
+;~ +---------------------+ 
+;~ | # # # #   # # # # # |
+;~ |   # # # # # # # # # |
+;~ | # # #   # # # # # # |
+;~ | # # #   # # # # # # |
+;~ | # # # # # #   # # # |
+;~ | # # # #   # # # # # |
+;~ | # # # # # # #   # # |
+;~ | # # # # # # # #   # |
+;~ | #   # # # # # # # # |
+;~ |   # # # # # # # # # |
+;~ | # # # # # # # # #   |
+;~ | # # # # # # # #   # |
+;~ | # # # # # # # #   # |
+;~ | # #   # # # # # # # |
+;~ | # # # # # # # #   # |
+;~ |   # # # # # # # # # |
+;~ | # # # # # # # #   # |
+;~ +---------------------+
+(push tabteste-impossivel *tabuleiros*)
+(push tabteste2 *tabuleiros*)
+(push tabteste1 *tabuleiros*)
 
 (defun obtem-estados (&optional pecas-por-colocar)
 	(let ((estados nil))

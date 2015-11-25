@@ -19,6 +19,7 @@
 			(setf (estado-tabuleiro estado) tabuleiro))
 	
 	(setf sequencia-solucao (procura-pp (cria-problema estado nil)))
+	(desenha-estado estado)
 	(funcall (desenha-jogada) estado sequencia-solucao)
 	 
 	 sequencia-solucao
@@ -54,15 +55,10 @@
 
 ; procuras com tabuleiros inicializados
 (defun ppt1 ()
-	(testa-pp '(o o) (nth 0 *tabuleiros*))
-)
+	(testa-pp '(o o) tabteste1))
 
 (defun ppt2 ()
-	(testa-pp '(o o) (nth 1 *tabuleiros*))
-)
+	(testa-pp '(o o) tabteste2))
 
-(defun ppt3 ()
-	(testa-pp '(o o) (nth 2 *tabuleiros*))
-)
-
-
+(defun pptimpossivel ()
+	(testa-pp '(o o) tabteste-impossivel))
