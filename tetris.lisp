@@ -748,7 +748,7 @@ exemplos:
 (defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
-	(nos->accoes (best-first-search problema #'no-menor-f))
+	(nos->accoes (best-first-search problema heuristica))
 )
 
 (defun procura-best (array lista-pecas)
