@@ -656,11 +656,15 @@ exemplos:
 
 ; > (enqueue-front '(1 2 3) '(4 5 6))
 ; (4 5 6 1 2 3)
+; correcao segundo prof:
+; (6 5 4 1 2 3)
 (defun enqueue-front (nos-actuais nos-expandidos)
 	"Adiciona novos nos a frente dos nos-actuais.
 	Nao tem em atencao o custo de caminho."
 
-	(let ((nos-a-adicionar (reverse nos-expandidos)))
+	;~ (let ((nos-a-adicionar (reverse nos-expandidos)))
+	; alteracao segundo instrucoes do professor
+	(let ((nos-a-adicionar nos-expandidos))
 
 		(loop while (not (null nos-a-adicionar))
 		do (push (pop nos-a-adicionar) nos-actuais))
@@ -735,8 +739,18 @@ exemplos:
 
 ;; procura-A*
 
-(defun procura-A* (problema)
+; para guardar heuristica na funcao queue, isto deve resultar:
+; (defun queue-func (nos-actuais nos-novos heuristica) CODIGO )
+; (best-first search problem (lambda (a b) (queue-func a b heuristica))
+
+(defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
+	;fixme: falta converter para lista de accoes
+	; usar funcao nos->accoes
 	(best-first-search problema #'enqueue-by-value)
+)
+
+(defun procura-best (array lista-pecas)
+	nil
 )
