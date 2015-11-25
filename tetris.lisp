@@ -748,9 +748,14 @@ exemplos:
 
 	;fixme: falta converter para lista de accoes
 	; usar funcao nos->accoes
+	
+	;fixme: falta usar heuristica
+	(ignore heuristica)
 	(best-first-search problema #'enqueue-by-value)
 )
 
 (defun procura-best (array lista-pecas)
-	nil
+	; FIXME: remover ao implementar
+	(ignore lista-pecas)
+	(ignore array)
 )
