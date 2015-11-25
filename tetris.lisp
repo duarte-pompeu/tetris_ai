@@ -631,7 +631,7 @@ exemplos:
 ))
 
 
-(defun no-menor (n1 n2)
+(defun no-menor-f (n1 n2)
 	"Devolve T se o valor de f de n1 for menor que o de n2"
 
 	(<= (no-custo-caminho n1) (no-custo-caminho n2))
@@ -673,11 +673,11 @@ exemplos:
 ))
 
 
-(defun enqueue-by-value (nos-actuais nos-novos)
+(defun enqueue-by-value (nos-actuais nos-novos funcao-avaliacao)
 	"Adiciona os novos nos e mantem a lista ordenada"
 
 	(let* ((todos (nconc nos-actuais nos-novos)))
-		(stable-sort todos #'no-menor)
+		(stable-sort todos funcao-avaliacao)
 
 		todos
 	)
@@ -733,7 +733,9 @@ exemplos:
 (defun best-first-search (problema funcao-avaliacao)
 	"algoritmo generico para as procuras melhor-primeiro"
 
-	(general-search problema funcao-avaliacao)
+	(general-search problema #'(lambda 
+							(nos-actuais nos-novos) (enqueue-by-value nos-actuais nos-novos funcao-avaliacao))
+	)
 )
 
 
@@ -746,12 +748,7 @@ exemplos:
 (defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
-	;fixme: falta converter para lista de accoes
-	; usar funcao nos->accoes
-	
-	;fixme: falta usar heuristica
-	(ignore heuristica)
-	(best-first-search problema #'enqueue-by-value)
+	(nos->accoes (best-first-search problema #'no-menor-f))
 )
 
 (defun procura-best (array lista-pecas)
