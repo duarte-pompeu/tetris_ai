@@ -61,4 +61,12 @@
 	(testa-pp '(o o) tabteste2))
 
 (defun pptimpossivel ()
-	(testa-pp '(o o) tabteste-impossivel))
+	(testa-pp '(i j l l l l l l) tabteste-impossivel))
+
+; ver se alguma peca da porcaria
+(defun stress-impossivel ()
+	(let ((pecas '(i j l s z t o)))
+	
+	(loop for peca in pecas
+	do (testa-pp (list peca) tabteste-impossivel)))
+)
