@@ -10,6 +10,15 @@
 		lista-pecas
 ))
 
+(defun n-pecas-aleatorias (n)
+	(let ((pecas nil))
+	
+	(loop for i upto n
+	do (push (nth (random 7) *todas-pecas*) pecas))
+	
+	pecas
+))
+
 ;  (testa-pp (cria-problema (estado-10-i) nil))
 (defun pecas-10-i ()
 	"estado com 10 'i's

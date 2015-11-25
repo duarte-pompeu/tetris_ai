@@ -8,15 +8,6 @@
 (defvar *tabuleiros* nil)
 (defvar *pecas-aleatorias* nil)
 
-(defun n-pecas-aleatorias (n)
-	(let ((pecas nil))
-	
-	(loop for i upto n
-	do (push (nth (random 7) *todas-pecas*) pecas))
-	
-	pecas
-))
-
 (setf tabteste1 #S(TABULEIRO   :CAMPO-JOGO   #2A((NIL NIL T T NIL NIL T NIL NIL NIL)       (NIL NIL NIL NIL T T NIL NIL NIL NIL)       (NIL NIL NIL NIL T NIL NIL NIL NIL T)       (NIL NIL NIL NIL NIL T NIL NIL NIL NIL)       (NIL T T NIL T NIL NIL NIL NIL NIL)       (NIL NIL NIL T NIL NIL NIL T NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL T NIL NIL T NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (T NIL T NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL T NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL T)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(10 5 10 6 5 8 1 12 0 14) :PAR-POS-MAIS-ALTA (13 . 9)   :OCUPADAS-NA-LINHA #(3 2 2 1 3 2 0 2 0 2 0 1 0 1 0 0 0 0 0)   :TOTAL-OCUPADAS 19))
 ;~ +---------------------+
 ;~ |                     |
@@ -57,8 +48,33 @@
 ;~ |   # #   # # #   # # |
 ;~ | # # # # # # # #   # |
 ;~ +---------------------+
+
+
+; tabteste3: pecas sem solucao:
+; (S S O Z O O L O L I I L T I T L Z S I L Z)
+(setf tabteste3 #S(TABULEIRO   :CAMPO-JOGO   #2A((NIL T T T T T T T T T)       (T NIL T T T T T T T T)       (T T T T T T T NIL T T)       (T NIL T NIL T NIL T T NIL T)       (NIL T NIL NIL T T NIL NIL T T)       (NIL T T NIL NIL T NIL T NIL T)       (T T NIL NIL NIL T T T T T)       (NIL NIL T NIL T NIL T T T NIL)       (NIL T T T NIL NIL T NIL NIL NIL)       (T T NIL NIL NIL T NIL NIL T T)       (NIL T NIL NIL NIL NIL NIL T NIL T)       (T T NIL T NIL T T T T NIL)       (NIL T NIL T NIL T T T T NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL T NIL NIL NIL NIL T T NIL)       (NIL NIL T T T NIL NIL T T T)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(12 13 16 16 16 13 13 16 16 16) :PAR-POS-MAIS-ALTA (15 . 9)   :OCUPADAS-NA-LINHA #(9 9 9 6 5 5 7 5 4 5 3 7 6 0 3 6 0 0 0)   :TOTAL-OCUPADAS 89))
+;~ +---------------------+
+;~ |                     |
+;~ |     # # #     # # # |
+;~ |     #         # #   |
+;~ |                     |
+;~ |   #   #   # # # #   |
+;~ | # #   #   # # # #   |
+;~ |   #           #   # |
+;~ | # #       #     # # |
+;~ |   # # #     #       |
+;~ |     #   #   # # #   |
+;~ | # #       # # # # # |
+;~ |   # #     #   #   # |
+;~ |   #     # #     # # |
+;~ | #   #   #   # #   # |
+;~ | # # # # # # #   # # |
+;~ | #   # # # # # # # # |
+;~ |   # # # # # # # # # |
+;~ +---------------------+
+
 (setf tabteste-impossivel #S(TABULEIRO   :CAMPO-JOGO   #2A((T T T T T T T T NIL T)       (NIL T T T T T T T T T)       (T T T T T T T T NIL T)       (T T NIL T T T T T T T)       (T T T T T T T T NIL T)       (T T T T T T T T NIL T)       (T T T T T T T T T NIL)       (NIL T T T T T T T T T)       (T NIL T T T T T T T T)       (T T T T T T T T NIL T)       (T T T T T T T NIL T T)       (T T T T NIL T T T T T)       (T T T T T T NIL T T T)       (T T T NIL T T T T T T)       (T T T NIL T T T T T T)       (NIL T T T T T T T T T)       (T T T T NIL T T T T T)       (T NIL T T T T T T T T)       (NIL NIL NIL NIL NIL NIL NIL NIL NIL NIL))   :ALTURA-COLUNAS #(18 17 18 18 18 18 18 18 18 18) :PAR-POS-MAIS-ALTA (17 . 9)   :OCUPADAS-NA-LINHA #(9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 9 0)   :TOTAL-OCUPADAS 162))
-;~ +---------------------+ 
+;~ +---------------------+
 ;~ | # # # #   # # # # # |
 ;~ |   # # # # # # # # # |
 ;~ | # # #   # # # # # # |
@@ -78,6 +94,7 @@
 ;~ | # # # # # # # #   # |
 ;~ +---------------------+
 (push tabteste-impossivel *tabuleiros*)
+(push tabteste3 *tabuleiros*)
 (push tabteste2 *tabuleiros*)
 (push tabteste1 *tabuleiros*)
 
@@ -110,7 +127,7 @@
 	(let ((estados nil))
 		(loop for tab in *tabuleiros*
 		do (push (make-estado :pontos 0 :pecas-por-colocar pecas-por-colocar  :pecas-colocadas nil :tabuleiro tab) estados))
-		
+
 	estados
 ))
 

@@ -621,7 +621,7 @@ exemplos:
 (defun nos->accoes (no-objectivo)
 	(if (null no-objectivo)
 		(return-from nos->accoes nil))
-	
+
 	(let ((no-actual no-objectivo)
 		(accoes nil))
 
@@ -737,7 +737,7 @@ exemplos:
 (defun best-first-search (problema funcao-avaliacao)
 	"algoritmo generico para as procuras melhor-primeiro"
 
-	(general-search problema #'(lambda 
+	(general-search problema #'(lambda
 							(nos-actuais nos-novos) (enqueue-by-value nos-actuais nos-novos funcao-avaliacao))
 	)
 )

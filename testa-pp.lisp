@@ -22,7 +22,7 @@
 	(desenha-estado estado)
 	(funcall (desenha-jogada) estado sequencia-solucao)
 	
-	(mylog "numero pecas:")
+	(mylog "numero pecas colocadas:")
 	(mylog (length sequencia-solucao))
 	 
 	 sequencia-solucao
@@ -72,4 +72,22 @@
 	
 	(loop for peca in pecas
 	do (testa-pp (list peca) tabteste-impossivel)))
+)
+
+; uso: (rand-stress [tabuleiro] [numero de pecas a colocar] [numero de loops]
+; clisp -i "tetris.lisp" -x "(rl) (rand-stress tabteste2 30 3)"
+; termina quando chega a estados impossiveis (ou quando da erro)
+(defun rand-stress (tabuleiro n-pecas n-loops)
+	(setf *random-state* (make-random-state t))
+
+	(loop for i upto (1- n-loops)
+		do (let* ((pecas (n-pecas-aleatorias n-pecas))
+			(resultado (testa-pp pecas tabuleiro)))
+			(mylog i)
+		
+		(if (null resultado)
+			(progn 
+			(mylog "nao encontrou solucao")
+			(mylog pecas)
+			(return-from rand-stress resultado)))))
 )
