@@ -597,19 +597,19 @@ exemplos:
 )
 
 
-(defun expande-no (no-pai)
+(defun expande-no (no-pai problema)
 	(let* ((estado-inicial (copia-estado (no-estado no-pai)))
 		; reverse porque queremos tirar elemento de uma lista, transformalo num no e metelo numa nova lista sem alterar a ordem
-		(accoes (reverse (accoes estado-inicial)))
+		(accoes (reverse (funcall (problema-accoes problema) estado-inicial)))
 		(profundidade (1+ (no-profundidade no-pai)))
 		(lista-nos nil))
 
 
 		(loop for accao in accoes
-		do (let* ((estado-resultante (resultado estado-inicial accao))
+		do (let* ((estado-resultante (funcall (problema-resultado problema) estado-inicial accao))
 
 			;FIXME: tem que receber a funcao qualidade como argumento
-			(custo-caminho (qualidade estado-resultante))
+			(custo-caminho (funcall (problema-custo-caminho problema) estado-resultante))
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho)))
 
 			(push no-filho lista-nos)))
@@ -718,7 +718,7 @@ exemplos:
 			(return-from general-search no))
 
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
-		(setf nos (funcall queuing-fn nos (expande-no no))))
+		(setf nos (funcall queuing-fn nos (expande-no no problema))))
 	))
 ))
 
