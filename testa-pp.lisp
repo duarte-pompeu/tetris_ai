@@ -51,3 +51,18 @@
 			(setf estado (resultado estado peca))
 			(desenha-estado estado)))
 ))
+
+; procuras com tabuleiros inicializados
+(defun ppt1 ()
+	(testa-pp '(o o) (nth 0 *tabuleiros*))
+)
+
+(defun ppt2 ()
+	(testa-pp '(o o) (nth 1 *tabuleiros*))
+)
+
+(defun ppt3 ()
+	(testa-pp '(o o) (nth 2 *tabuleiros*))
+)
+
+
