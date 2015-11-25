@@ -95,10 +95,16 @@
 (setf pteste-10b '(O J T S I L Z T Z S))
 (setf pteste-10c '(L I J S S Z O Z I Z))
 
+; 20 pecas
+(setf pteste-20a '(S I T L Z L I I S S T O L L J T T Z Z I))
+(setf pteste-20b '(L L I L S L S O S I J I L I J L J S J L))
+(setf pteste-20c '(L L S I Z L I T I I S L Z L Z J T T I Z))
+
 ; 50 pecas
+; um bocado abusado, estas demoram muito tempo
 (setf pteste-50a '(Z O O Z S I T S Z I T O O O Z O L S L J T Z J T I Z J O O L S I S J Z T S T T S S J O O S Z J T Z S T))
 (setf pteste-50b '(Z Z S I I L O J I O L O J L O O J L Z O O S J L T S S S S O J J Z O Z L I Z O L J O O I Z Z J L I L))
-(setf pteste-50c '((O T Z J L T S I S O J Z S S J Z O S J I J O O S O Z T T I T J I Z O T L L L T L L Z Z L L Z Z S L S))
+(setf pteste-50c '(O T Z J L T S I S O J Z S S J Z O S J I J O O S O Z T T I T J I Z O T L L L T L L Z Z L L Z Z S L S))
 
 (defun obtem-estados (&optional pecas-por-colocar)
 	(let ((estados nil))

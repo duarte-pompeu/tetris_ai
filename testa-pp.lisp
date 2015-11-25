@@ -21,6 +21,9 @@
 	(setf sequencia-solucao (procura-pp (cria-problema estado nil)))
 	(desenha-estado estado)
 	(funcall (desenha-jogada) estado sequencia-solucao)
+	
+	(mylog "numero pecas:")
+	(mylog (length sequencia-solucao))
 	 
 	 sequencia-solucao
 ))
