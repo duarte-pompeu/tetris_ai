@@ -13,6 +13,7 @@
 	(load "testa-pp.lisp")
 	(load "nos.lisp")
 	(load "gerador.lisp")
+	(load "tabuleiros.lisp")
 )
 
 

@@ -11,12 +11,17 @@
 )
 
 
-(defun testa-pp (lista-pecas)
+(defun testa-pp (lista-pecas &optional tabuleiro)
 	(let* ((estado (cria-estado lista-pecas))
-		(sequencia-solucao
-			(procura-pp (cria-problema estado nil))))
-
-	 (funcall (desenha-jogada) estado sequencia-solucao)
+		(sequencia-solucao nil))
+		
+		(if tabuleiro
+			(setf (estado-tabuleiro estado) tabuleiro))
+	
+	(setf sequencia-solucao (procura-pp (cria-problema estado nil)))
+	(funcall (desenha-jogada) estado sequencia-solucao)
+	 
+	 sequencia-solucao
 ))
 
 
