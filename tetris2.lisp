@@ -730,7 +730,7 @@ exemplos:
 	"Utiliza general-search e enqueue-front (funcao de enqueue em que nos expandidos vao para o inicio da fila)
 	para efectar uma procura em profundidade primeiro."
 	(nos->accoes
-		(general-search problema (function enqueue-front) #'(lambda (x) 0)))
+		(general-search problema (function enqueue-front) #'sem-heuristica))
 )
 
 
@@ -762,4 +762,9 @@ exemplos:
 	; FIXME: remover ao implementar
 	(ignore lista-pecas)
 	(ignore array)
+)
+
+(defun sem-heuristica (estado)
+	"funcao heuristica chamada nas procuras cegas"
+	(- (estado-pontos estado) (estado-pontos estado))
 )
