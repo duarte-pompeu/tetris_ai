@@ -153,7 +153,7 @@
 			  (when (or (and (= ultima-linha linha) ; caso linha maior que ultima linha esta coberto pelo if
 					 (> coluna ultima-coluna))
 				    (> linha ultima-linha))
-			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
+			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))) T)
 
 
  (defun encontra-maximo (array)
