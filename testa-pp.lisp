@@ -18,7 +18,7 @@
 		(if tabuleiro
 			(setf (estado-tabuleiro estado) tabuleiro))
 	
-	(setf sequencia-solucao (procura-pp (cria-problema estado nil)))
+	(setf sequencia-solucao (procura-pp (cria-problema estado (function qualidade))))
 	(desenha-estado estado)
 	(funcall (desenha-jogada) estado sequencia-solucao)
 	
