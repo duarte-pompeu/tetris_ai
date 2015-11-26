@@ -682,11 +682,13 @@ exemplos:
 (defun enqueue-by-value (nos-actuais nos-novos funcao-avaliacao)
 	"Adiciona os novos nos e mantem a lista ordenada"
 
-	(let* ((todos (nconc nos-actuais nos-novos)))
+	(let* ((todos (nconc (reverse nos-actuais) nos-novos)))
 	
 		(stable-sort todos #'<= :key funcao-avaliacao)
 		; debug only
 		#|(dolist (no todos) 
+			;(print (len todos))
+			(print (no-funcao-f no))
 			(desenha-estado (no-estado no) (no-operador no))
 			(read-char)
 		)|#
@@ -724,7 +726,8 @@ exemplos:
 		; if goal-test(problem) applied to state(node) succeeds: return node
 		(if (funcall (problema-solucao problema) (no-estado no))
 			(return-from general-search no))
-
+		;debug
+		;(print "vai expandir")
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
 		(setf nos (funcall queuing-fn nos (expande-no no problema heuristica))))
 	))
