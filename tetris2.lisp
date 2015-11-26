@@ -616,7 +616,7 @@ exemplos:
 
 			(push no-filho lista-nos)))
 
-	lista-nos
+		lista-nos
 ))
 
 
@@ -683,8 +683,14 @@ exemplos:
 	"Adiciona os novos nos e mantem a lista ordenada"
 
 	(let* ((todos (nconc nos-actuais nos-novos)))
+	
 		(stable-sort todos #'<= :key funcao-avaliacao)
-
+		; debug only
+		#|(dolist (no todos) 
+			(desenha-estado (no-estado no) (no-operador no))
+			(read-char)
+		)|#
+		; end of debug
 		todos
 	)
 )
@@ -748,22 +754,27 @@ exemplos:
 
 ;; procura-A*
 
-; para guardar heuristica na funcao queue, isto deve resultar:
-; (defun queue-func (nos-actuais nos-novos heuristica) CODIGO )
-; (best-first search problem (lambda (a b) (queue-func a b heuristica))
-
 (defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
 	(nos->accoes (best-first-search problema #'no-funcao-f heuristica))
 )
 
+;; procura-best
+
 (defun procura-best (array lista-pecas)
 	; FIXME: remover ao implementar
 	(ignore lista-pecas)
 	(ignore array)
+	
+	; tabuleiro (array->tabuleiro array)
+	; estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiros
+	; problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'
+	; ; escolher procura, heuristica, custo-caminho
 )
 
+
+;; auxiliares
 (defun sem-heuristica (estado)
 	"funcao heuristica chamada nas procuras cegas"
 	(- (estado-pontos estado) (estado-pontos estado))
