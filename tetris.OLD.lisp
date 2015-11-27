@@ -154,7 +154,7 @@
 			  (when (or (and (= ultima-linha linha) ; caso linha maior que ultima linha esta coberto pelo if
 					 (> coluna ultima-coluna))
 				    (> linha ultima-linha))
-			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))) T)
+			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))))
 
 
  (defun encontra-maximo (array)
@@ -594,11 +594,11 @@ exemplos:
 ;;;;;;;;;;;
 
 (defstruct no
-	estado no-pai operador profundidade custo-caminho funcao-h funcao-f
+	estado no-pai operador profundidade custo-caminho
 )
 
 
-(defun expande-no (no-pai problema heuristica)
+(defun expande-no (no-pai problema)
 	(let* ((estado-inicial (copia-estado (no-estado no-pai)))
 		; reverse porque queremos tirar elemento de uma lista, transformalo num no e metelo numa nova lista sem alterar a ordem
 		(accoes (reverse (funcall (problema-accoes problema) estado-inicial)))
@@ -611,13 +611,11 @@ exemplos:
 
 			;FIXME: tem que receber a funcao qualidade como argumento
 			(custo-caminho (funcall (problema-custo-caminho problema) estado-resultante))
-			(valor-h (funcall heuristica estado-resultante))
-			(valor-f (+ custo-caminho valor-h))
-			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho :funcao-h valor-h :funcao-f valor-f)))
+			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho)))
 
 			(push no-filho lista-nos)))
 
-		lista-nos
+	lista-nos
 ))
 
 
@@ -641,7 +639,7 @@ exemplos:
 (defun no-menor-f (n1 n2)
 	"Devolve T se o valor de f de n1 for menor que o de n2"
 
-	(<= (no-funcao-f n1) (no-funcao-f n2))
+	(<= (no-custo-caminho n1) (no-custo-caminho n2))
 )
 
 
@@ -683,17 +681,9 @@ exemplos:
 (defun enqueue-by-value (nos-actuais nos-novos funcao-avaliacao)
 	"Adiciona os novos nos e mantem a lista ordenada"
 
-	(let* ((todos (nconc (reverse nos-actuais) nos-novos)))
-	
-		(stable-sort todos #'<= :key funcao-avaliacao)
-		; debug only
-		#|(dolist (no todos) 
-			;(print (len todos))
-			(print (no-funcao-f no))
-			(desenha-estado (no-estado no) (no-operador no))
-			(read-char)
-		)|#
-		; end of debug
+	(let* ((todos (nconc nos-actuais nos-novos)))
+		(stable-sort todos funcao-avaliacao)
+
 		todos
 	)
 )
@@ -703,7 +693,7 @@ exemplos:
 ;;;;;;;;;;;;;;;;
 
 ;; nao parece ter bugs mas pode ser melhor testada
-(defun general-search (problema queuing-fn heuristica)
+(defun general-search (problema queuing-fn)
 	"Executa uma pesquisa generica.
 	 Pode ser utilizada por varios algoritmos de pesquisa, que apenas tem que fornecer uma queuing-function adequada.
 	 Tenta implementar rigorosamente o pseudo-codigo do manual da disciplina."
@@ -711,7 +701,7 @@ exemplos:
 
 	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
 	(let* ((estado-inicial (problema-estado-inicial problema))
-		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0 :funcao-h 0 :funcao-f 0))
+		(no-inicial (make-no :estado estado-inicial :no-pai nil :operador nil :profundidade 0 :custo-caminho 0))
 		(nos (make-queue no-inicial)))
 
 	(loop while T
@@ -727,10 +717,9 @@ exemplos:
 		; if goal-test(problem) applied to state(node) succeeds: return node
 		(if (funcall (problema-solucao problema) (no-estado no))
 			(return-from general-search no))
-		;debug
-		;(print "vai expandir")
+
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
-		(setf nos (funcall queuing-fn nos (expande-no no problema heuristica))))
+		(setf nos (funcall queuing-fn nos (expande-no no problema))))
 	))
 ))
 
@@ -740,46 +729,35 @@ exemplos:
 	"Utiliza general-search e enqueue-front (funcao de enqueue em que nos expandidos vao para o inicio da fila)
 	para efectar uma procura em profundidade primeiro."
 	(nos->accoes
-		(general-search problema (function enqueue-front) #'sem-heuristica))
+		(general-search problema (function enqueue-front)))
 )
 
 
 ;; best first search
 
-(defun best-first-search (problema funcao-avaliacao heuristica)
+(defun best-first-search (problema funcao-avaliacao)
 	"algoritmo generico para as procuras melhor-primeiro"
 
-	(general-search problema
-					#'(lambda (nos-actuais nos-novos) (enqueue-by-value nos-actuais nos-novos funcao-avaliacao))
-					heuristica
+	(general-search problema #'(lambda
+							(nos-actuais nos-novos) (enqueue-by-value nos-actuais nos-novos funcao-avaliacao))
 	)
 )
 
 
 ;; procura-A*
 
+; para guardar heuristica na funcao queue, isto deve resultar:
+; (defun queue-func (nos-actuais nos-novos heuristica) CODIGO )
+; (best-first search problem (lambda (a b) (queue-func a b heuristica))
+
 (defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
-	(nos->accoes (best-first-search problema #'no-funcao-f heuristica))
+	(nos->accoes (best-first-search problema heuristica))
 )
-
-;; procura-best
 
 (defun procura-best (array lista-pecas)
 	; FIXME: remover ao implementar
 	(ignore lista-pecas)
 	(ignore array)
-	
-	; tabuleiro (array->tabuleiro array)
-	; estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiros
-	; problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'
-	; ; escolher procura, heuristica, custo-caminho
-)
-
-
-;; auxiliares
-(defun sem-heuristica (estado)
-	"funcao heuristica chamada nas procuras cegas"
-	(- (estado-pontos estado) (estado-pontos estado))
 )

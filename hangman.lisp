@@ -5,7 +5,13 @@
 	(load "hangman.lisp")
 )
 
+
+; problema com solucao
 ; (procura-pp (cria-problema-forca "ia" 5))
+
+; problema sem solucao - nao da para escrever ia com 1 caracter :)
+; (procura-pp (cria-problema-forca "ia" 1))
+
 (defun cria-problema-forca (palavra n-tentativas)
 	(make-problema 
 		:estado-inicial (create-h-state palavra n-tentativas)
