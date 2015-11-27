@@ -78,9 +78,11 @@
 	(setf (h-state-score copy) (- (h-state-score copy) 20))
 	
 	(loop for i upto (1-(length (h-state-word h-state)))
-		do (if (equal
-				(aref (h-state-word h-state) i)
-				action)
+		do (if (and (equal
+						(aref (h-state-word h-state) i)
+						action)
+					(not (equal (aref (h-state-guessed-word h-state) i)
+								action)))
 				
 				(progn
 				(setf (aref (h-state-guessed-word copy) i) action)
@@ -94,9 +96,10 @@
 
 
 (setf s1 (create-h-state "ia" 3))
-(setf s2 (result s1 #\a))
-(setf s3 (result s2 #\i))
-(setf s4 (result s1 #\b))
+(setf s2a (result s1 #\a))
+(setf s2b (result s2 #\i))
+(setf s3 (result s1 #\b))
+(setf s4 (result s2 #\a))
 ;s3 should be solution
 
 
