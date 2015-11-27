@@ -777,9 +777,9 @@ exemplos:
 	"implementada como uma procura A* com heuristica ..."
 	(let* ((tabuleiro (array->tabuleiro array))
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
-		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'qualidade)))
+		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
 		
-		; procura A*
+		; procura A* com heuristica: heuristica-dif-colunas
 		(procura-A* problema #'heuristica-dif-colunas)
 	)
 )
