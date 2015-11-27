@@ -616,7 +616,7 @@ exemplos:
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho :funcao-h valor-h :funcao-f valor-f)))
 
 			(push no-filho lista-nos)))
-		; debug only
+		#|; debug only
 		(dolist (no lista-nos) 
 			(desenha-estado (no-estado no) (no-operador no))
 			(print (no-estado no))
@@ -624,7 +624,7 @@ exemplos:
 			(read-char)
 		)
 		; end of debug
-		
+		|#
 		lista-nos
 ))
 
@@ -774,15 +774,47 @@ exemplos:
 ;; procura-best
 
 (defun procura-best (array lista-pecas)
-	; FIXME: remover ao implementar
-	(ignore lista-pecas)
-	(ignore array)
-	
-	; tabuleiro (array->tabuleiro array)
-	; estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiros
-	; problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'
-	; ; escolher procura, heuristica, custo-caminho
+	"implementada como uma procura A* com heuristica ..."
+	(let* ((tabuleiro (array->tabuleiro array))
+		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
+		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'qualidade)))
+		
+		; procura A*
+		(procura-A* problema #'heuristica-dif-colunas)
+	)
 )
+
+
+;; heuristicas ;;
+
+(defun heuristica-dif-colunas (estado)
+	"calcula a diferenca entre a coluna mais alta e a coluna mais baixa"
+	
+	(let* ((coluna-mais-alta (+ 1 (car (tabuleiro-par-pos-mais-alta (estado-tabuleiro estado))))) ; mais 1 porque as colunas estao incrementadas em 1 linha
+		   (coluna-mais-baixa +linhas+)
+		   (colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
+		  )
+		
+		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
+		(when (> coluna-mais-alta 17)
+			(return-from heuristica-dif-colunas +linhas+)
+		)
+		
+		; achar coluna mais baixa (dava jeito ter um par-pos-mais-baixa)   
+		(dotimes (col 10)
+			
+			(when (< (aref colunas col) coluna-mais-baixa)
+				(setf coluna-mais-baixa (aref colunas col))
+			)
+		)
+		
+		; devolver a diferenca
+		(- coluna-mais-alta coluna-mais-baixa)
+	)
+)
+
+
+
 
 
 ;; auxiliares
