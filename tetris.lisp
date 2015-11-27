@@ -37,6 +37,8 @@
    "o tabuleiro de jogo tem 10 colunas")
 (defconstant +coluna-maxima+ 9
    "o tabuleiro de jogo tem 0-9 colunas")
+(defconstant +celulas+ 180
+	"o tabuleiro tem 18*10=180 celulas")
 (defconstant +livre+ nil
    "o valor nil simboliza uma casa livre")
 (defconstant +ocupada+ T
@@ -401,6 +403,9 @@ Descricao do algoritmo:
 		; 2
 		(tabuleiro-larga-peca! tab-novo peca coluna)
 		
+		(if (tabuleiro-topo-preenchido-p tab-novo)
+			(return-from resultado estado-novo))
+
 		(if (tabuleiro-topo-preenchido-p tab-novo)
 			(return-from resultado estado-novo))
 
@@ -782,7 +787,7 @@ exemplos:
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
 		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
 		
-		; procura A* com heuristica: heuristica-dif-colunas
+		; procura A* com heuristica:
 		(procura-A* problema #'heuristica-dif-colunas)
 	)
 )
@@ -799,12 +804,12 @@ exemplos:
 		  )
 		
 		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
-		(when (> coluna-mais-alta 17)
+		(when (> coluna-mais-alta +linha-maxima+)
 			(return-from heuristica-dif-colunas +linhas+)
 		)
 		
 		; achar coluna mais baixa (dava jeito ter um par-pos-mais-baixa)   
-		(dotimes (col 10)
+		(dotimes (col +colunas+)
 			
 			(when (< (aref colunas col) coluna-mais-baixa)
 				(setf coluna-mais-baixa (aref colunas col))
@@ -812,13 +817,42 @@ exemplos:
 		)
 		
 		; devolver a diferenca
-		(- coluna-mais-alta coluna-mais-baixa)
+		(* 100 (- coluna-mais-alta coluna-mais-baixa))
 	)
 )
 
 
+(defun heuristica-ocupadas (estado)
+	"calcula o numero total de posicoes ocupadas"
+	
+	(tabuleiro-total-ocupadas (estado-tabuleiro estado))
+)
 
 
+(defun heuristica-linhas-completas (estado)
+	"calcula o numero de linhas completas"
+	
+	(let* ((linhas-completas 0)
+		   (ocupadas (tabuleiro-ocupadas-na-linha (estado-tabuleiro estado)))
+		  )
+		
+		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
+		(when (> (+ 1 (car (tabuleiro-par-pos-mais-alta (estado-tabuleiro estado)))) +linha-maxima+)
+			(return-from heuristica-linhas-completas +linhas+)
+		)
+		
+		; procurar linhas completamente cheias
+		(dotimes (lin +linhas+)
+			
+			; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
+			(when (= (aref ocupadas lin) +colunas+ )
+				(incf linhas-completas)
+			)
+		)
+		
+		(- linhas-completas)
+	)
+)
 
 ;; auxiliares
 (defun sem-heuristica (estado)
@@ -826,3 +860,7 @@ exemplos:
 	(ignore-value estado)
 	0
 )
+
+#|(let ((total-nos 0))
+	(defun conta-nos)
+)|#
