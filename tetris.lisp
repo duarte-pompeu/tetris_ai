@@ -616,7 +616,15 @@ exemplos:
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho :funcao-h valor-h :funcao-f valor-f)))
 
 			(push no-filho lista-nos)))
-
+		; debug only
+		(dolist (no lista-nos) 
+			(desenha-estado (no-estado no) (no-operador no))
+			(print (no-estado no))
+			(print (solucao (no-estado no))) ;e solucao? o problema esta aqui! mas o solucao parece-me bem, o tabuleiro-topo-preenchido tambem, deve ser no resultado!!!
+			(read-char)
+		)
+		; end of debug
+		
 		lista-nos
 ))
 
@@ -675,7 +683,7 @@ exemplos:
 
 		(loop while (not (null nos-a-adicionar))
 		do (push (pop nos-a-adicionar) nos-actuais))
-
+		
 	nos-actuais
 ))
 
@@ -716,7 +724,7 @@ exemplos:
 
 	(loop while T
 	do (progn
-
+	
 		; if nodes is empty: return failure
 		(if (empty nos)
 			(return-from general-search nil))
@@ -727,8 +735,7 @@ exemplos:
 		; if goal-test(problem) applied to state(node) succeeds: return node
 		(if (funcall (problema-solucao problema) (no-estado no))
 			(return-from general-search no))
-		;debug
-		;(print "vai expandir")
+		
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
 		(setf nos (funcall queuing-fn nos (expande-no no problema heuristica))))
 	))
