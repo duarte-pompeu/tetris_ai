@@ -91,3 +91,27 @@
 			(mylog pecas)
 			(return-from rand-stress resultado)))))
 )
+
+;; teste 15
+(ignore-value (setf t15 (cria-tabuleiro)))
+;;deve retornar IGNORE
+(ignore-value (dotimes (linha 17) (dotimes (coluna 10) (tabuleiro-preenche! t15 linha coluna))))
+;;deve retornar NIL (nao existe solucao)
+(setf e15 (make-estado :pontos 0 :tabuleiro t15 :pecas-colocadas () :pecas-por-colocar '(o)))
+(setf p15 (make-problema :estado-inicial e15 :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'(lambda (x) 0)))
+(setf pp15 (procura-pp p15))
+
+(defun t15-solucoes ()
+	(loop for acc in (accoes e15)
+do ( mylog (solucao (resultado e15 acc))))
+)
+
+(defun t15-topo ()
+	(loop for acc in (accoes e15)
+do (progn
+	(let* ((estado-resultante (resultado e15 acc))
+		(tab (estado-tabuleiro estado-resultante)))
+	(mylog tab)
+	(mylog "topo preenchido?") 
+	(mylog (tabuleiro-topo-preenchido-p tab))))
+))

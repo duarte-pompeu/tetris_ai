@@ -97,9 +97,9 @@
 
 (setf s1 (create-h-state "ia" 3))
 (setf s2a (result s1 #\a))
-(setf s2b (result s2 #\i))
+(setf s2b (result s2a #\i))
 (setf s3 (result s1 #\b))
-(setf s4 (result s2 #\a))
+(setf s4 (result s2a #\a))
 ;s3 should be solution
 
 
