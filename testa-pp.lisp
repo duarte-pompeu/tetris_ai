@@ -97,7 +97,7 @@
 ;;deve retornar IGNORE
 (ignore-value (dotimes (linha 17) (dotimes (coluna 10) (tabuleiro-preenche! t15 linha coluna))))
 ;;deve retornar NIL (nao existe solucao)
-(setf e15 (make-estado :pontos 0 :tabuleiro t15 :pecas-colocadas () :pecas-por-colocar '(o)))
+(setf e15 (make-estado :pontos 0 :tabuleiro t15 :pecas-colocadas () :pecas-por-colocar '(i)))
 (setf p15 (make-problema :estado-inicial e15 :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'(lambda (x) 0)))
 (setf pp15 (procura-pp p15))
 

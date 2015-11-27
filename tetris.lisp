@@ -400,6 +400,9 @@ Descricao do algoritmo:
 			(coluna (accao-coluna accao)))
 		; 2
 		(tabuleiro-larga-peca! tab-novo peca coluna)
+		
+		(if (tabuleiro-topo-preenchido-p tab-novo)
+			(return-from resultado estado-novo))
 
 		(let* ((coluna-final (+ coluna (largura-peca peca)))
 			(todas-alturas (tabuleiro-altura-colunas tab-novo))
