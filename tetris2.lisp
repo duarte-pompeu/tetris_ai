@@ -14,6 +14,7 @@
 	(load "nos.lisp")
 	(load "gerador.lisp")
 	(load "tabuleiros.lisp")
+	(load "hangman.lisp")
 )
 
 
