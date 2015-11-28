@@ -284,17 +284,18 @@
 	(let ((n-colunas 0)
 		(arr-colunas nil))
 		
+		; nao existe API para contar numero de colunas (sem ser atraves de tabuleiro-> array, uma operacao demasiado pesada)
+		; este loop conta numero de colunas atraves de um magnifico hack - ignore-errors
 		(loop for c upto 1000
-		; problema: nao sabemos o numero de colunas para tabuleiros alternativos
-		; ignore-error retorna nil quando existe um erro em vez de crashar o programa
 		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
 			(if (numberp current-value)
 				(incf n-colunas)
 				(loop-finish))))
 		
-		; cria array
+		; cria array com tamanho certo
 		(setf arr-colunas (make-array n-colunas))
-				
+		
+		; mete valores na array
 		(loop for c upto (1- n-colunas)
 		do (setf (aref arr-colunas c)
 				(tabuleiro-altura-coluna tabuleiro-generico c)))
@@ -439,7 +440,7 @@ Descricao do algoritmo:
 			(return-from resultado estado-novo))
 
 		(let* ((coluna-final (+ coluna (largura-peca peca)))
-			(todas-alturas (tabuleiro-altura-colunas tab-novo))
+			(todas-alturas (gen-h-colunas tab-novo))
 			(alturas (subseq todas-alturas coluna coluna-final))
 			(altura-max-possivel (reduce #'min alturas))
 			(altura-min-possivel (- altura-max-possivel (altura-peca peca)))
@@ -495,7 +496,7 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 
 	(let* ((base (peca-base peca))
 		(largura (largura-peca peca))
-		(alturas-tab (tabuleiro-altura-colunas tab))
+		(alturas-tab (gen-h-colunas tab))
 		(alturas-ajustadas (subseq (copia-array alturas-tab)
 			coluna (+ coluna largura)))
 		(max-altura 0))
@@ -829,7 +830,7 @@ exemplos:
 	
 	(let* ((coluna-mais-alta (+ 1 (car (tabuleiro-par-pos-mais-alta (estado-tabuleiro estado))))) ; mais 1 porque as colunas estao incrementadas em 1 linha
 		   (coluna-mais-baixa +linhas+)
-		   (colunas (tabuleiro-altura-colunas (estado-tabuleiro estado)))
+		   (colunas (gen-h-colunas (estado-tabuleiro estado)))
 		  )
 		
 		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
