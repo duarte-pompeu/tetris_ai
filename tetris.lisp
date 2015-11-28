@@ -271,7 +271,36 @@
 	  (tabuleiro-preenche! tabuleiro linha coluna))))
     tabuleiro))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; funcoes auxiliares que usam a API do tabuleiro
+; necessarias para generalizar problemas (adeus optimizacoes)
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defun gen-h-colunas (tabuleiro-generico)
+	"obtem altura-max, pois os nossos campos optimizads nao se aplicam para problemas genericos"
+	
+	(let ((n-colunas 0)
+		(arr-colunas nil))
+		
+		(loop for c upto 1000
+		; problema: nao sabemos o numero de colunas para tabuleiros alternativos
+		; ignore-error retorna nil quando existe um erro em vez de crashar o programa
+		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
+			(if (numberp current-value)
+				(incf n-colunas)
+				(loop-finish))))
+		
+		; cria array
+		(setf arr-colunas (make-array n-colunas))
+				
+		(loop for c upto (1- n-colunas)
+		do (setf (aref arr-colunas c)
+				(tabuleiro-altura-coluna tabuleiro-generico c)))
+	
+	arr-colunas
+))
 
 ;;; *SECCAO* 2.1.3 - TIPO ESTADO
 
