@@ -37,8 +37,8 @@
    "o tabuleiro de jogo tem 10 colunas")
 (defconstant +coluna-maxima+ 9
    "o tabuleiro de jogo tem 0-9 colunas")
-(defconstant +celulas+ 180
-	"o tabuleiro tem 18*10=180 celulas")
+(defconstant +casas+ 180
+	"o tabuleiro tem 18*10=180 casas")
 (defconstant +livre+ nil
    "o valor nil simboliza uma casa livre")
 (defconstant +ocupada+ T
@@ -735,7 +735,7 @@ exemplos:
 		; debug only
 		#|(dolist (no todos) 
 			;(print (len todos))
-			(print (no-funcao-f no))
+			(print (no-funcao-h no))
 			(desenha-estado (no-estado no) (no-operador no))
 			(read-char)
 		)|#
@@ -817,8 +817,14 @@ exemplos:
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
 		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
 		
-		; procura A* com heuristica:
+		; procura A* com heuristica-dif-colunas
 		(procura-A* problema #'heuristica-dif-colunas)
+		
+		; procura A* com heuristica-ocupadas
+		;(procura-A* problema #'heuristica-ocupadas)
+		
+		; procura A* com heuristica-linhas-completas
+		;(procura-A* problema #'heuristica-linhas-completas)
 	)
 )
 
@@ -828,59 +834,89 @@ exemplos:
 (defun heuristica-dif-colunas (estado)
 	"calcula a diferenca entre a coluna mais alta e a coluna mais baixa"
 	
-	(let* ((coluna-mais-alta (+ 1 (car (tabuleiro-par-pos-mais-alta (estado-tabuleiro estado))))) ; mais 1 porque as colunas estao incrementadas em 1 linha
-		   (coluna-mais-baixa +linhas+)
-		   (colunas (gen-h-colunas (estado-tabuleiro estado)))
+	(let* ((tabuleiro (estado-tabuleiro estado))
+		   (coluna-mais-alta 0) ; parte do principio que nao existem pecas no tabuleiro
+		   (coluna-mais-baixa +linhas+) ; coluna mais alta e a ultima linha do tabuleiro
+		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
+
 		  )
 		
-		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
-		(when (> coluna-mais-alta +linha-maxima+)
-			(return-from heuristica-dif-colunas +linhas+)
+		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
+		(when (tabuleiro-topo-preenchido-p tabuleiro)
+			(return-from heuristica-dif-colunas (* factor +linhas+))
 		)
 		
-		; achar coluna mais baixa (dava jeito ter um par-pos-mais-baixa)   
-		(dotimes (col +colunas+)
+		; achar coluna mais baixa e coluna mais alta
+		(dotimes (i +colunas+)
 			
-			(when (< (aref colunas col) coluna-mais-baixa)
-				(setf coluna-mais-baixa (aref colunas col))
+			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
+				
+				(when (< altura-coluna coluna-mais-baixa)
+					(setf coluna-mais-baixa altura-coluna)
+				)
+				(when (> altura-coluna coluna-mais-alta)
+					(setf coluna-mais-alta altura-coluna)
+				)
 			)
 		)
 		
 		; devolver a diferenca
-		(* 100 (- coluna-mais-alta coluna-mais-baixa))
+		(* factor (- coluna-mais-alta coluna-mais-baixa))
 	)
 )
 
 
 (defun heuristica-ocupadas (estado)
-	"calcula o numero total de posicoes ocupadas"
+	"calcula o numero total de posicoes (casas) ocupadas"
 	
-	(tabuleiro-total-ocupadas (estado-tabuleiro estado))
+	(let* ((tabuleiro (estado-tabuleiro estado))
+		   (ocupadas 0)
+		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
+		  )
+		
+		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
+		(when (tabuleiro-topo-preenchido-p tabuleiro)
+			(return-from heuristica-ocupadas (* factor +casas+))
+		)
+		
+		; achar o numero de casas preenchidas
+		(dotimes (i +colunas+)
+			
+			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
+			
+				(+ altura-coluna ocupadas)
+			)
+		)
+		
+		; devolver a diferenca
+		(* factor ocupadas)
+	)
 )
 
 
 (defun heuristica-linhas-completas (estado)
 	"calcula o numero de linhas completas"
 	
-	(let* ((linhas-completas 0)
-		   (ocupadas (tabuleiro-ocupadas-na-linha (estado-tabuleiro estado)))
+	(let* ((tabuleiro (estado-tabuleiro estado))
+		   (completas 0)
+		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
 		  )
 		
-		; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
-		(when (> (+ 1 (car (tabuleiro-par-pos-mais-alta (estado-tabuleiro estado)))) +linha-maxima+)
-			(return-from heuristica-linhas-completas +linhas+)
+		; se o topo estiver preenchido devolve o menor valor possivel da heuristica (nao queremos este estado!)
+		(when (tabuleiro-topo-preenchido-p tabuleiro)
+			(return-from heuristica-linhas-completas 0)
 		)
 		
-		; procurar linhas completamente cheias
-		(dotimes (lin +linhas+)
+		; achar o numero de linhas completas
+		(dotimes (i +linhas+)
 			
-			; se coluna mais alta e' a 'ultima vamos perder; nao queremos escolher este estado -> devolver valor mais alto
-			(when (= (aref ocupadas lin) +colunas+ )
-				(incf linhas-completas)
+			(when (tabuleiro-linha-completa-p tabuleiro i)
+				(incf completas)
 			)
 		)
 		
-		(- linhas-completas)
+		; devolver a diferenca
+		(* factor completas)
 	)
 )
 
