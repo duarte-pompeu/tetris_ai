@@ -818,14 +818,7 @@ exemplos:
 	(let* ((todos (nconc (reverse nos-actuais) nos-novos)))
 
 		(stable-sort todos #'<= :key funcao-avaliacao)
-		; debug only
-		#|(dolist (no todos)
-			;(print (len todos))
-			(print (no-funcao-h no))
-			(desenha-estado (no-estado no) (no-operador no))
-			(read-char)
-		)|#
-		; end of debug
+		
 		todos
 	)
 )
@@ -903,17 +896,21 @@ exemplos:
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
 		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
 
-		; procura A* com heuristica-dif-colunas
-		(procura-A* problema #'heuristica-dif-colunas)
-
-		; procura A* com heuristica-ocupadas
-		;(procura-A* problema #'heuristica-ocupadas)
-
-		; procura A* com heuristica-linhas-completas
-		;(procura-A* problema #'heuristica-linhas-completas)
+		;(procura-A* problema #'heuristica-dif-colunas)
+		
+		; procura A* com heuristica-casas-ocupadas
+		(procura-A* problema #'heuristica-casas-ocupadas)
+		
+		; procura A* com heuristica-buracos
+		;(procura-A* problema #'heuristica-buracos)
+		
+		; procura A* com heuristica-altos-e-baixos
+		;(procura-A* problema #'heuristica-altos-e-baixos)
+		
+		; procura A* com heuristica-best
+		;(procura-A* problema #'heuristica-best)
 	)
 )
-
 
 ;; heuristicas ;;
 
@@ -921,27 +918,24 @@ exemplos:
 	"calcula a diferenca entre a coluna mais alta e a coluna mais baixa"
 
 	(let* ((tabuleiro (estado-tabuleiro estado))
-		   (coluna-mais-alta 0) ; parte do principio que nao existem pecas no tabuleiro
-		   (coluna-mais-baixa +linhas+) ; coluna mais alta e a ultima linha do tabuleiro
-		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
-
+		   (coluna-mais-alta (+ 1 (car (tabuleiro-par-pos-mais-alta tabuleiro)))) ; + 1 pq altura coluna esta' incrementada em 1
+		   (coluna-mais-baixa +linhas+)
+		   (colunas (tabuleiro-altura-colunas tabuleiro))
+		   (factor 100)
 		  )
 
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-dif-colunas (* factor +linhas+))
 		)
-
-		; achar coluna mais baixa e coluna mais alta
-		(dotimes (i +colunas+)
-
-			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
-
-				(when (< altura-coluna coluna-mais-baixa)
-					(setf coluna-mais-baixa altura-coluna)
-				)
-				(when (> altura-coluna coluna-mais-alta)
-					(setf coluna-mais-alta altura-coluna)
+	
+		; achar coluna mais baixa  
+		(dotimes (col +colunas+)
+			
+			(let* ((altura (aref colunas col)))
+			
+				(when (< altura coluna-mais-baixa)
+					(setf coluna-mais-baixa altura)
 				)
 			)
 		)
@@ -952,59 +946,93 @@ exemplos:
 )
 
 
-(defun heuristica-ocupadas (estado)
+(defun heuristica-casas-ocupadas (estado)
 	"calcula o numero total de posicoes (casas) ocupadas"
 
 	(let* ((tabuleiro (estado-tabuleiro estado))
-		   (ocupadas 0)
-		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
+		   (factor 25)
+		  )
+		  
+		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
+			(when (tabuleiro-topo-preenchido-p tabuleiro)
+				(return-from heuristica-casas-ocupadas (* factor +casas+))
+			)
+		
+		(* factor (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
+	)
+)
+
+
+(defun heuristica-buracos (estado)
+	"calcula a diferenca entre a soma das posicoes mais altas das colunas e o numero de casas ocupadas"
+	
+	(let* ((tabuleiro (estado-tabuleiro estado))
+		   (colunas (tabuleiro-altura-colunas tabuleiro))
+		   (casas-ocupadas (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
+		   (soma-pos-mais-altas 0)
+		   (factor 700)
 		  )
 
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
-			(return-from heuristica-ocupadas (* factor +casas+))
+			(return-from heuristica-buracos (* factor +casas+))
 		)
-
-		; achar o numero de casas preenchidas
-		(dotimes (i +colunas+)
-
-			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
-
-				(+ altura-coluna ocupadas)
+		
+		; achar soma das posicoes mais altas das colunas
+		(dotimes (col +colunas+)
+			
+			(let* ((altura (aref colunas col)))
+			
+				(setf soma-pos-mais-altas (+ soma-pos-mais-altas altura))
 			)
 		)
 
 		; devolver a diferenca
-		(* factor ocupadas)
+		(* factor (- soma-pos-mais-altas casas-ocupadas))
 	)
 )
 
 
-(defun heuristica-linhas-completas (estado)
-	"calcula o numero de linhas completas"
-
+(defun heuristica-altos-e-baixos (estado)
+	"calcula a soma do valor absoluto das diferencas de alturas de colunas adjacentes"
+	
 	(let* ((tabuleiro (estado-tabuleiro estado))
-		   (completas 0)
-		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
+		   (colunas (tabuleiro-altura-colunas tabuleiro))
+		   (resultado 0)
+		   (factor 75)
 		  )
-
-		; se o topo estiver preenchido devolve o menor valor possivel da heuristica (nao queremos este estado!)
+		
+		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
-			(return-from heuristica-linhas-completas 0)
+			(return-from heuristica-altos-e-baixos (* factor (- +casas+ +linhas+)))
 		)
-
-		; achar o numero de linhas completas
-		(dotimes (i +linhas+)
-
-			(when (tabuleiro-linha-completa-p tabuleiro i)
-				(incf completas)
-			)
+		
+		; achar soma do valor absoluto das diferencas de alturas de colunas adjacentes
+		(dotimes (col (- +colunas+ 1))
+			
+			(setf resultado (+ resultado (abs (- (aref colunas (+ col 1)) (aref colunas col)))))
 		)
-
-		; devolver a diferenca
-		(* factor completas)
+		
+		; devolver resultado
+		(* factor resultado)
 	)
 )
+
+
+(defun heuristica-best (estado)
+	"a melhor funcao heuristica (combinacao de heuristicas)"
+	
+	(let* ((h1 (heuristica-dif-colunas estado))
+		   (h2 (heuristica-casas-ocupadas estado))
+		   (h3 (heuristica-buracos estado))
+		   (h4 (heuristica-altos-e-baixos estado))
+		  )
+		
+		(+ (* 0.40 h1) (* 0.05 h2) (* 0.30 h3) (* 0.25 h4))
+	)
+)
+
+
 
 ;; auxiliares
 (defun sem-heuristica (estado)
@@ -1013,6 +1041,4 @@ exemplos:
 	0
 )
 
-#|(let ((total-nos 0))
-	(defun conta-nos)
-)|#
+
