@@ -16,6 +16,10 @@
 	(load "hangman.lisp")
 )
 
+(defun rlalt ()
+	(load "tab_alt.lisp")
+)
+
 
 (defvar  *DEBUG-MODE* T)
 
@@ -191,6 +195,35 @@
   "devolve T se houver uma peca que ocupa a linha 17"
   (eq (car (tabuleiro-par-pos-mais-alta tabuleiro)) +linha-maxima+))
 
+(defun tabuleiros-iguais-p (tabuleiro outro)
+  "dados dois tabuleiro devolve T se forem iguais e nil caso contr'ario"
+
+  (cond ((/= (tabuleiro-total-ocupadas tabuleiro)  (tabuleiro-total-ocupadas outro)) nil)
+	((not (pares-iguais-p (tabuleiro-par-pos-mais-alta tabuleiro) (tabuleiro-par-pos-mais-alta outro))) nil)
+	((not (vectores-iguais-p (tabuleiro-altura-colunas tabuleiro) (tabuleiro-altura-colunas outro))) nil)
+	((not (vectores-iguais-p (tabuleiro-ocupadas-na-linha tabuleiro) (tabuleiro-ocupadas-na-linha outro))) nil)
+	((not (vectores-iguais-p (tabuleiro-campo-jogo tabuleiro) (tabuleiro-campo-jogo outro))) nil)
+	(t t)))
+
+
+(defun tabuleiro->array (tabuleiro)
+  "recebe um tabuleiro e devvolve o array de booleans correspondente"
+
+  (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
+	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
+    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1) nil '(18 10))))
+
+
+(defun array->tabuleiro (array)
+  "devolve o tabuleiro construido a partir de um array de 18 linhas e 10 colunas"
+
+  (let ((tabuleiro (cria-tabuleiro)))
+    (dotimes (i (array-total-size array))
+      (when (row-major-aref array i)
+	(multiple-value-bind (linha coluna) (floor i 10)  ;floor devolve dois valores que ficam associados a linha coluna
+	  (tabuleiro-preenche! tabuleiro linha coluna))))
+    tabuleiro))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -276,35 +309,6 @@
 
   (and (eq (car par) (car outro)) (eq (cdr par) (cdr outro))))
 
-
-(defun tabuleiros-iguais-p (tabuleiro outro)
-  "dados dois tabuleiro devolve T se forem iguais e nil caso contr'ario"
-
-  (cond ((/= (tabuleiro-total-ocupadas tabuleiro)  (tabuleiro-total-ocupadas outro)) nil)
-	((not (pares-iguais-p (tabuleiro-par-pos-mais-alta tabuleiro) (tabuleiro-par-pos-mais-alta outro))) nil)
-	((not (vectores-iguais-p (tabuleiro-altura-colunas tabuleiro) (tabuleiro-altura-colunas outro))) nil)
-	((not (vectores-iguais-p (tabuleiro-ocupadas-na-linha tabuleiro) (tabuleiro-ocupadas-na-linha outro))) nil)
-	((not (vectores-iguais-p (tabuleiro-campo-jogo tabuleiro) (tabuleiro-campo-jogo outro))) nil)
-	(t t)))
-
-
-(defun tabuleiro->array (tabuleiro)
-  "recebe um tabuleiro e devvolve o array de booleans correspondente"
-
-  (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
-	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
-    (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1) nil '(18 10))))
-
-
-(defun array->tabuleiro (array)
-  "devolve o tabuleiro construido a partir de um array de 18 linhas e 10 colunas"
-
-  (let ((tabuleiro (cria-tabuleiro)))
-    (dotimes (i (array-total-size array))
-      (when (row-major-aref array i)
-	(multiple-value-bind (linha coluna) (floor i 10)  ;floor devolve dois valores que ficam associados a linha coluna
-	  (tabuleiro-preenche! tabuleiro linha coluna))))
-    tabuleiro))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
