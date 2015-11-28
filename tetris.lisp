@@ -46,6 +46,10 @@
 
 (defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
 
+;;; GLOBAIS
+(defvar +LINHAS_TAB_ACTUAL+ 0)
+(defvar +COLUNAS_TAB_ACTUAL+ 0)
+
 
 ;;; *SECCAO* 2.1.1 - TIPO ACCAO
 (defun cria-accao (inteiro array)
@@ -277,6 +281,14 @@
 ; necessarias para generalizar problemas (adeus optimizacoes)
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defun gen-n-colunas (tabuleiro-generico)
+	(loop for c upto 1000
+		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
+			(if (not (and (numberp current-value) (>= current-value 0)))
+				(loop-finish)))
+	finally (return c))
+)
 
 (defun gen-h-colunas (tabuleiro-generico)
 	"obtem altura-max, pois os nossos campos optimizads nao se aplicam para problemas genericos"
