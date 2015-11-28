@@ -1,11 +1,10 @@
 ; Grupo 64:  	73008 	Duarte Pinto Pompeu	 	76765 	Antonio Joaquim Sousa Gloria	 	76338 	Marcio Antonio Filipe dos Santos
 
 ; CARACTERES NAO ASCII: [^\x00-\x7F]+
-; basta pesquisarem com regex, caso o vosso editor suporte
-; em Linux, nao funciona com cat | grep, nao sei pq
 
-;invocar (rl) faz reload do ficheiro
 (defun rl ()
+	"faz load a varios ficheiros do projecto"
+
  	(load "tetris.lisp")
 	(load "tests.lisp")
 	(load "testes-tab.lisp")
@@ -18,15 +17,16 @@
 )
 
 
-;; ; meter T para fazer print do mylog, nil para nao fazer;
-;; ; TODO: meter a nil antes de submeter no mooshak
 (defvar  *DEBUG-MODE* T)
 
 (defun mylog (message)
+	"imprime mensagem caso DEBUG-MODE seja T"
+
  	(if *DEBUG-MODE*
  		(format t "~a ~%" message)
 	)
 )
+
 
 ;;; DEFINICOES
 (defconstant +linhas+ 18
@@ -51,21 +51,35 @@
 (defvar +COLUNAS_TAB_ACTUAL+ 0)
 
 
-;;; *SECCAO* 2.1.1 - TIPO ACCAO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.1.1 - TIPO ACCAO
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun cria-accao (inteiro array)
 	(cons inteiro array)
 )
 
+
 (defun accao-coluna (accao)
 	(car accao)
 )
+
 
 (defun accao-peca (accao)
 	(cdr accao)
 )
 
 
-;;; *SECCAO* 2.1.2 - TIPO TABULEIRO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.1.2 - TIPO TABULEIRO
+;
+; FUNCOES PUBLICAS
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defstruct tabuleiro
   "estrutura que define o tipo tabuleiro de jogo
       campo-jogo: um array que representa o campo de jogo cada posicao
@@ -94,15 +108,6 @@
 			:par-pos-mais-alta altura-maxima
 			:ocupadas-na-linha ocupadas-na-linha
 			:total-ocupadas casas-preenchidas)))
-
-
-(defun copia-array (array &optional (limite (array-total-size array)) init-element (dims (array-dimensions array)))
-  "recebe um array e devolve uma co'pia do array sem alterar o original"
-  (let ((new-array (make-array dims :initial-element init-element)))
-    (dotimes (i limite)
-      (setf (row-major-aref new-array i) ; o array e' uma zona continua de memoria ordenada por linhas
-	    (row-major-aref array i)))
-    new-array)) ;return
 
 
 (defun copia-tabuleiro (tabuleiro)
@@ -163,47 +168,6 @@
 			    (setf (tabuleiro-par-pos-mais-alta tabuleiro) (cons linha coluna))))))))) T)
 
 
- (defun encontra-maximo (array)
-   "devolve o elemento maximo num array de numeros nao vazio"
-   (let ((maximo (row-major-aref array 0)))
-     (dotimes (i (array-total-size array))
-       (let ((elemento (row-major-aref array i)))
- 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
- 	  (setf maximo elemento))))
-     maximo))
-
-
-(defun encontra-altura (campo-jogo indice-coluna &optional (limite +linhas+))
-  "encontra a altura de uma coluna com indice-coluna no array campo-jogo"
-  (let ((resultado 0))
-    (dotimes (i limite resultado)
-      (when (aref campo-jogo i indice-coluna)
-	(setf resultado (+ i 1))))))
-
-
-(defun repoe-alturas! (campo-jogo alturas altura-maxima linha-removida)
-  "repoe as alturas num evento remove-linha!"
-  (let ((maxima 0))
-    (dotimes (i +colunas+ maxima) ;actualiza alturas
-      (let ((altura (aref alturas i)))
-	(if (> altura (1+ linha-removida))
-	    (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
-	    (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))
-	(when (> altura (aref alturas maxima))
-	  (setf maxima i)))))) ; pode haver vazio por baixo da linha
-
-
-(defun desce-linha! (tabuleiro linha)
-  "copia a linha sobre a linha anterior apagando assim a informacao que la' estava"
-  (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
-	(linha-de-baixo (- linha 1)))
-    (let ((ocupadas-linha-de-cima (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
-      (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha-de-baixo) ocupadas-linha-de-cima) ;actualiza ocupadas na linha
-      (dotimes (i +colunas+) ;actualiza campo-jogo
-	(setf (aref campo-jogo linha-de-baixo i)
-	      (aref campo-jogo linha i))))))
-
-
 (defun tabuleiro-remove-linha! (tabuleiro linha)
   "remove a linha fazendo com que as linhas de cima descam uma casa"
     (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
@@ -228,10 +192,73 @@
   (eq (car (tabuleiro-par-pos-mais-alta tabuleiro)) +linha-maxima+))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; SECCAO 2.1.1 - TIPO TABULEIRO
+;
+; FUNCOES INTERNAS
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+(defun copia-array (array &optional (limite (array-total-size array)) init-element (dims (array-dimensions array)))
+  "recebe um array e devolve uma co'pia do array sem alterar o original"
+
+  (let ((new-array (make-array dims :initial-element init-element)))
+    (dotimes (i limite)
+      (setf (row-major-aref new-array i) ; o array e' uma zona continua de memoria ordenada por linhas
+	    (row-major-aref array i)))
+    new-array)) ;return
+
+ (defun encontra-maximo (array)
+   "devolve o elemento maximo num array de numeros nao vazio"
+
+   (let ((maximo (row-major-aref array 0)))
+     (dotimes (i (array-total-size array))
+       (let ((elemento (row-major-aref array i)))
+ 	(when (> elemento maximo) ;row-major-aref trata o array como um vector
+ 	  (setf maximo elemento))))
+     maximo))
+
+
+(defun encontra-altura (campo-jogo indice-coluna &optional (limite +linhas+))
+  "encontra a altura de uma coluna com indice-coluna no array campo-jogo"
+
+  (let ((resultado 0))
+    (dotimes (i limite resultado)
+      (when (aref campo-jogo i indice-coluna)
+	(setf resultado (+ i 1))))))
+
+
+(defun repoe-alturas! (campo-jogo alturas altura-maxima linha-removida)
+  "repoe as alturas num evento remove-linha!"
+
+  (let ((maxima 0))
+    (dotimes (i +colunas+ maxima) ;actualiza alturas
+      (let ((altura (aref alturas i)))
+	(if (> altura (1+ linha-removida))
+	    (setf (aref alturas i) (- altura 1)) ;ha' casas preenchidas por cima da linha
+	    (setf (aref alturas i) (encontra-altura campo-jogo i altura-maxima)))
+	(when (> altura (aref alturas maxima))
+	  (setf maxima i)))))) ; pode haver vazio por baixo da linha
+
+
+(defun desce-linha! (tabuleiro linha)
+  "copia a linha sobre a linha anterior apagando assim a informacao que la' estava"
+
+  (let ((campo-jogo (tabuleiro-campo-jogo tabuleiro))
+	(linha-de-baixo (- linha 1)))
+    (let ((ocupadas-linha-de-cima (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha)))
+      (setf (aref (tabuleiro-ocupadas-na-linha tabuleiro) linha-de-baixo) ocupadas-linha-de-cima) ;actualiza ocupadas na linha
+      (dotimes (i +colunas+) ;actualiza campo-jogo
+	(setf (aref campo-jogo linha-de-baixo i)
+	      (aref campo-jogo linha i))))))
+
 ;;Esta funcao pode comparar arrays com dimensoes garantidamente identicas
 ;;  que desta forma se encontram em memoria como um vector
 ;;  assim,  as coordenadas de cada elemento vao concidir
 (defun vectores-iguais-p (vec1 vec2)
+
   "dados dois vectores devolve T se tiverem a mesma composicao e nil caso contrario"
   (let ((dim-vec1 (array-total-size vec1))
 	(dim-vec2 (array-total-size vec2))
@@ -246,11 +273,13 @@
 
 (defun pares-iguais-P (Par Outro)
   "Predicado Que Compara Dois Pares De Numeros E Devolve T Se Forem Identicos Nil caso contr'ario"
+
   (and (eq (car par) (car outro)) (eq (cdr par) (cdr outro))))
 
 
 (defun tabuleiros-iguais-p (tabuleiro outro)
   "dados dois tabuleiro devolve T se forem iguais e nil caso contr'ario"
+
   (cond ((/= (tabuleiro-total-ocupadas tabuleiro)  (tabuleiro-total-ocupadas outro)) nil)
 	((not (pares-iguais-p (tabuleiro-par-pos-mais-alta tabuleiro) (tabuleiro-par-pos-mais-alta outro))) nil)
 	((not (vectores-iguais-p (tabuleiro-altura-colunas tabuleiro) (tabuleiro-altura-colunas outro))) nil)
@@ -261,6 +290,7 @@
 
 (defun tabuleiro->array (tabuleiro)
   "recebe um tabuleiro e devvolve o array de booleans correspondente"
+
   (let ((linha-mais-alta (car (tabuleiro-par-pos-mais-alta tabuleiro)))
 	(coluna-mais-alta (cdr (tabuleiro-par-pos-mais-alta tabuleiro))))
     (copia-array (tabuleiro-campo-jogo tabuleiro) (+ (* linha-mais-alta 10) coluna-mais-alta 1) nil '(18 10))))
@@ -268,6 +298,7 @@
 
 (defun array->tabuleiro (array)
   "devolve o tabuleiro construido a partir de um array de 18 linhas e 10 colunas"
+
   (let ((tabuleiro (cria-tabuleiro)))
     (dotimes (i (array-total-size array))
       (when (row-major-aref array i)
@@ -282,6 +313,7 @@
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
 (defun gen-n-colunas (tabuleiro-generico)
 	(loop for c upto 1000
 		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
@@ -290,12 +322,13 @@
 	finally (return c))
 )
 
+
 (defun gen-h-colunas (tabuleiro-generico)
 	"obtem altura-max, pois os nossos campos optimizads nao se aplicam para problemas genericos"
-	
+
 	(let ((n-colunas 0)
 		(arr-colunas nil))
-		
+
 		; nao existe API para contar numero de colunas (sem ser atraves de tabuleiro-> array, uma operacao demasiado pesada)
 		; este loop conta numero de colunas atraves de um magnifico hack - ignore-errors
 		(loop for c upto 1000
@@ -303,29 +336,39 @@
 			(if (numberp current-value)
 				(incf n-colunas)
 				(loop-finish))))
-		
+
 		; cria array com tamanho certo
 		(setf arr-colunas (make-array n-colunas))
-		
+
 		; mete valores na array
 		(loop for c upto (1- n-colunas)
 		do (setf (aref arr-colunas c)
 				(tabuleiro-altura-coluna tabuleiro-generico c)))
-	
+
 	arr-colunas
 ))
 
-;;; *SECCAO* 2.1.3 - TIPO ESTADO
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.1.3 - TIPO ESTADO
+;
+; FUNCOES PUBLICAS
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
 
-; a unica coisa que muda num estado inicial sao as pecas
+
 (defun cria-estado (pecas-por-colocar)
+"Funcao que cria estados com tabuleiros vazios."
+
 	(make-estado :pontos 0
 				:pecas-por-colocar pecas-por-colocar
 				:pecas-colocadas '()
 				:tabuleiro (cria-tabuleiro))
 )
+
 
 (defun copia-estado (estado-orig) "copia um estado"
 	(let ((estado-novo
@@ -361,12 +404,19 @@
 	)
 )
 
-;;;; *SECCAO* 2.1.4 - TIPO PROBLEMA
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; SECCAO 2.1.4 - TIPO PROBLEMA
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (defstruct problema
 	estado-inicial solucao accoes resultado custo-caminho)
 
 (defun cria-problema (estado funcao-custo-caminho)
 "Criador de problemas auxiliar: as unicas coisas que variam sao o estado inicial e as funcoes de custo de caminho"
+
 	(make-problema :estado-inicial estado
 					:solucao #'solucao
 					:accoes #'accoes
@@ -374,9 +424,17 @@
 					:custo-caminho funcao-custo-caminho)
 )
 
-;;;; *SECCAO* 2.2.1
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.2.1 - FUNCOES DO PROBLEMA DE PROCURA
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun solucao (estado)
-"Um estado e' solucao quando nao ha mais pecas por colocar e o topo nao esta preenchido"
+"Um estado e' solucao quando nao ha mais pecas por colocar e o topo nao esta preenchido."
+
 	(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
 		(null (estado-pecas-por-colocar estado)))
 )
@@ -394,8 +452,8 @@ Descricao do algoritmo:
 		2.1. para cada peca, obter possiveis rotacoes
 		2.2. para cada rotacao, obter posicoes possiveis
 		2.3. gerar accao com par peca e posicao e meter na lista
-	3. devolver lista
-	"
+	3. devolver lista"
+
 	; 1
 	(if (estado-final-p estado)
 		nil
@@ -444,7 +502,7 @@ Descricao do algoritmo:
 			(coluna (accao-coluna accao)))
 		; 2
 		(tabuleiro-larga-peca! tab-novo peca coluna)
-		
+
 		(if (tabuleiro-topo-preenchido-p tab-novo)
 			(return-from resultado estado-novo))
 
@@ -484,7 +542,30 @@ Descricao do algoritmo:
 	estado-novo)
 )
 
-; funcoes auxiliares para resolver problemas
+
+(defun qualidade (estado) "Retorna o simetrico do numero de pontos"
+
+	(- (estado-pontos estado))
+)
+
+
+(defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos"
+
+	(let ((max-pontos 0))
+		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
+			(incf max-pontos (pontos-por-peca peca))
+		)
+		(- max-pontos (estado-pontos estado))
+	)
+)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.2.1 - FUNCOES AUXILIARES
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defun tabuleiro-preenche-peca! (tab peca linha coluna)
 "Funcao auxiliar que transpoe uma peca para um tabuleiro.
@@ -525,33 +606,19 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 	tab
 ))
 
-
-(defun qualidade (estado) "Retorna o simetrico do numero de pontos"
-
-	(- (estado-pontos estado))
-)
-
-
-(defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos"
-
-	(let ((max-pontos 0))
-		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
-			(incf max-pontos (pontos-por-peca peca))
-		)
-		(- max-pontos (estado-pontos estado))
-	)
-)
-
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
 ; - se chamamos as funcoes m e n do "utils.fas", temos que fazer load do ficheiro primeiro
  (load "utils.fas")
-;(load (compile-file "utils.lisp"))
 
 
-; 0.0.0 - Pecas (funcoes e variaveis auxiliares)
-; a ordem e' contraria ao esperada porque a lista de accoes e' criada recursivamente
-; ou seja, insercoes sao feitas no inicio e tem que se inverter a ordem
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; PECAS - FUNCOES E VARIAVEIS AUXILIARES
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; rotacoes de cada peca
 (defconstant peca-i (list peca-i1 peca-i0))
 (defconstant peca-l (list peca-l3 peca-l2 peca-l1 peca-l0))
 (defconstant peca-j (list peca-j3 peca-j2 peca-j1 peca-j0))
@@ -561,7 +628,6 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 (defconstant peca-t (list peca-t3 peca-t2 peca-t1 peca-t0))
 
 ; precisamos de saber a pontuacao maxima para cada peca
-
 (defconstant +pontos-peca-i+ 800)
 (defconstant +pontos-peca-j+ 500)
 (defconstant +pontos-peca-l+ 500)
@@ -572,6 +638,7 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 
 (defun pontos-por-peca (peca)
 "Pontos maximos que a peca permite ganhar."
+
 	(cond
 		((equal peca 'i) +pontos-peca-i+)
 		((equal peca 'j) +pontos-peca-j+)
@@ -580,11 +647,11 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 		((equal peca 'z) +pontos-peca-z+)
 		((equal peca 't) +pontos-peca-t+)
 		((equal peca 'o) +pontos-peca-o+)
-	)
-)
+))
+
 
 (defun peca-base (p)
-; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
+; TODO: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
 "E' importante conhecer a base da peca para saber onde a encaixar
 enquanto que um quadrado e' trivial - encaixa na altura mais alta por baixo dele
 um l deitado nao - pode encaixar no meio de buracos
@@ -594,8 +661,7 @@ dependendo da forma da forma da sua base e das pecas que estao por debaixo dela
 
 exemplos:
 	linhas-base (peca-i0): (0 0 0 0)
-	linhas-base (peca-s0): (0 0 1)
-"
+	linhas-base (peca-s0): (0 0 1)"
 
 	(let* ((largura (largura-peca p))
 		(altura (altura-peca p))
@@ -615,15 +681,16 @@ exemplos:
 		alturas-base
 ))
 
+
 (defun altura-peca (p)
 "Calcula a altura de uma peca de forma mais abstracta."
-	(array-dimension p 0)
-)
+	(array-dimension p 0))
+
 
 (defun largura-peca (p)
 "Calcula a largura de uma peca de forma mais abstracta."
-	(array-dimension p 1)
-)
+	(array-dimension p 1))
+
 
 (defun rotacoes-peca (p)
 "Devolve uma lista de rotacoes possiveis para cada peca."
@@ -637,11 +704,13 @@ exemplos:
 		((equal p 't) peca-t))
 )
 
-;;; 2.2.2 - PROCURAS
 
-;;;;;;;;;;;
-;;  NOS  ;;
-;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; NOS - ESTRUTURA E FUNCOES
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defstruct no
 	estado no-pai operador profundidade custo-caminho funcao-h funcao-f
@@ -655,7 +724,6 @@ exemplos:
 		(profundidade (1+ (no-profundidade no-pai)))
 		(lista-nos nil))
 
-
 		(loop for accao in accoes
 		do (let* ((estado-resultante (funcall (problema-resultado problema) estado-inicial accao))
 
@@ -667,7 +735,7 @@ exemplos:
 
 			(push no-filho lista-nos)))
 		#|; debug only
-		(dolist (no lista-nos) 
+		(dolist (no lista-nos)
 			(desenha-estado (no-estado no) (no-operador no))
 			(print (no-estado no))
 			(print (solucao (no-estado no))) ;e solucao? o problema esta aqui! mas o solucao parece-me bem, o tabuleiro-topo-preenchido tambem, deve ser no resultado!!!
@@ -703,14 +771,19 @@ exemplos:
 )
 
 
-;;;;;;;;;;;;
-;;  FILAS ;;
-;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; FILAS
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defun make-queue (&rest args)
 	"Faz uma fila com os elementos de 'args'"
 
 	args
 )
+
 
 (defun empty (queue)
 	"Verifica se fila esta' vazia"
@@ -719,10 +792,7 @@ exemplos:
 		(null queue))
 )
 
-; > (enqueue-front '(1 2 3) '(4 5 6))
-; (4 5 6 1 2 3)
-; correcao segundo prof:
-; (6 5 4 1 2 3)
+
 (defun enqueue-front (nos-actuais nos-expandidos)
 	"Adiciona novos nos a frente dos nos-actuais.
 	Nao tem em atencao o custo de caminho."
@@ -733,7 +803,7 @@ exemplos:
 
 		(loop while (not (null nos-a-adicionar))
 		do (push (pop nos-a-adicionar) nos-actuais))
-		
+
 	nos-actuais
 ))
 
@@ -742,10 +812,10 @@ exemplos:
 	"Adiciona os novos nos e mantem a lista ordenada"
 
 	(let* ((todos (nconc (reverse nos-actuais) nos-novos)))
-	
+
 		(stable-sort todos #'<= :key funcao-avaliacao)
 		; debug only
-		#|(dolist (no todos) 
+		#|(dolist (no todos)
 			;(print (len todos))
 			(print (no-funcao-h no))
 			(desenha-estado (no-estado no) (no-operador no))
@@ -756,11 +826,13 @@ exemplos:
 	)
 )
 
-;;;;;;;;;;;;;;;;
-;;  PROCURAS  ;;
-;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+; 2.2.2 - PROCURAS
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;; nao parece ter bugs mas pode ser melhor testada
+
 (defun general-search (problema queuing-fn heuristica)
 	"Executa uma pesquisa generica.
 	 Pode ser utilizada por varios algoritmos de pesquisa, que apenas tem que fornecer uma queuing-function adequada.
@@ -774,8 +846,8 @@ exemplos:
 
 	(loop while T
 	do (progn
-	
-		; if nodes is empty: return failure
+
+		; if nodes is an empty list: return failure
 		(if (empty nos)
 			(return-from general-search nil))
 
@@ -785,11 +857,12 @@ exemplos:
 		; if goal-test(problem) applied to state(node) succeeds: return node
 		(if (funcall (problema-solucao problema) (no-estado no))
 			(return-from general-search no))
-		
+
 		; nodes <- queuing-fn (nodes, expand (node, operators(problem)))
 		(setf nos (funcall queuing-fn nos (expande-no no problema heuristica))))
 	))
 ))
+
 
 ; exemplo de utilizacao
 ; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
@@ -802,7 +875,6 @@ exemplos:
 
 
 ;; best first search
-
 (defun best-first-search (problema funcao-avaliacao heuristica)
 	"algoritmo generico para as procuras melhor-primeiro"
 
@@ -814,7 +886,6 @@ exemplos:
 
 
 ;; procura-A*
-
 (defun procura-A* (problema heuristica)
 	"ordenacao por valor de f = g + h"
 
@@ -822,19 +893,18 @@ exemplos:
 )
 
 ;; procura-best
-
 (defun procura-best (array lista-pecas)
 	"implementada como uma procura A* com heuristica ..."
 	(let* ((tabuleiro (array->tabuleiro array))
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
 		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
-		
+
 		; procura A* com heuristica-dif-colunas
 		(procura-A* problema #'heuristica-dif-colunas)
-		
+
 		; procura A* com heuristica-ocupadas
 		;(procura-A* problema #'heuristica-ocupadas)
-		
+
 		; procura A* com heuristica-linhas-completas
 		;(procura-A* problema #'heuristica-linhas-completas)
 	)
@@ -845,24 +915,24 @@ exemplos:
 
 (defun heuristica-dif-colunas (estado)
 	"calcula a diferenca entre a coluna mais alta e a coluna mais baixa"
-	
+
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (coluna-mais-alta 0) ; parte do principio que nao existem pecas no tabuleiro
 		   (coluna-mais-baixa +linhas+) ; coluna mais alta e a ultima linha do tabuleiro
 		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
 
 		  )
-		
+
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-dif-colunas (* factor +linhas+))
 		)
-		
+
 		; achar coluna mais baixa e coluna mais alta
 		(dotimes (i +colunas+)
-			
+
 			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
-				
+
 				(when (< altura-coluna coluna-mais-baixa)
 					(setf coluna-mais-baixa altura-coluna)
 				)
@@ -871,7 +941,7 @@ exemplos:
 				)
 			)
 		)
-		
+
 		; devolver a diferenca
 		(* factor (- coluna-mais-alta coluna-mais-baixa))
 	)
@@ -880,26 +950,26 @@ exemplos:
 
 (defun heuristica-ocupadas (estado)
 	"calcula o numero total de posicoes (casas) ocupadas"
-	
+
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (ocupadas 0)
 		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
 		  )
-		
+
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-ocupadas (* factor +casas+))
 		)
-		
+
 		; achar o numero de casas preenchidas
 		(dotimes (i +colunas+)
-			
+
 			(let* ((altura-coluna (tabuleiro-altura-coluna tabuleiro i)))
-			
+
 				(+ altura-coluna ocupadas)
 			)
 		)
-		
+
 		; devolver a diferenca
 		(* factor ocupadas)
 	)
@@ -908,25 +978,25 @@ exemplos:
 
 (defun heuristica-linhas-completas (estado)
 	"calcula o numero de linhas completas"
-	
+
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (completas 0)
 		   (factor 100)	; multiplica resultado por factor para a heuristica ter mais peso na funcao f
 		  )
-		
+
 		; se o topo estiver preenchido devolve o menor valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-linhas-completas 0)
 		)
-		
+
 		; achar o numero de linhas completas
 		(dotimes (i +linhas+)
-			
+
 			(when (tabuleiro-linha-completa-p tabuleiro i)
 				(incf completas)
 			)
 		)
-		
+
 		; devolver a diferenca
 		(* factor completas)
 	)
