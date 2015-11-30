@@ -3,21 +3,16 @@
 (defun rl ()
 "Carrega varios ficheiros do projecto."
 
- 	(load "tetris.lisp")
-	(load "tests.lisp")
-	(load "testes-tab.lisp")
-	(load "tests-problema.lisp")
-	(load "testa-pp.lisp")
-	(load "nos.lisp")
-	(load "gerador.lisp")
-	(load "tabuleiros.lisp")
-	(load "hangman.lisp")
+ 	(load "tetris.lisp") (load "tests.lisp")
+	(load "testes-tab.lisp") (load "tests-problema.lisp")
+	(load "testa-pp.lisp") (load "nos.lisp")
+	(load "gerador.lisp") (load "tabuleiros.lisp")
+	(load "hangman.lisp") (load "testa-a.lisp")
 )
 
 
 (defun rlalt ()
 "Carrega um tabuleiro alternativo."
-
 	(load "tab_alt.lisp")
 )
 
@@ -26,7 +21,6 @@
 
 (defun mylog (message)
 "Imprime mensagem caso DEBUG-MODE seja T."
-
  	(if *DEBUG-MODE*
  		(format t "~a ~%" message)
 ))
@@ -59,18 +53,15 @@
 
 
 (defun cria-accao (inteiro array)
-	(cons inteiro array)
-)
+	(cons inteiro array))
 
 
 (defun accao-coluna (accao)
-	(car accao)
-)
+	(car accao))
 
 
 (defun accao-peca (accao)
-	(cdr accao)
-)
+	(cdr accao))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -339,8 +330,7 @@
 		do (setf (aref arr-colunas c)
 				(tabuleiro-altura-coluna tabuleiro-generico c)))
 
-	arr-colunas
-))
+	arr-colunas))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -374,8 +364,7 @@
 			:tabuleiro (copia-tabuleiro (estado-tabuleiro estado-orig))
 		)))
 		estado-novo
-	)
-)
+))
 
 
 (defun estados-iguais-p (e1 e2) "estados iguais?"
@@ -385,19 +374,14 @@
 				(if (tabuleiros-iguais-p (estado-tabuleiro e1) (estado-tabuleiro e2))
 					T
 					nil
-				)
-			)
-		)
-	)
-)
+)))))
 
 
 (defun estado-final-p (e1) "verifica se um estado e' estado final"
 	(or
 	        (tabuleiro-topo-preenchido-p (estado-tabuleiro e1))
 	        (null (estado-pecas-por-colocar e1))
-	)
-)
+))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -416,8 +400,7 @@
 					:solucao #'solucao
 					:accoes #'accoes
 					:resultado #'resultado
-					:custo-caminho funcao-custo-caminho)
-)
+					:custo-caminho funcao-custo-caminho))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -431,8 +414,7 @@
 "Um estado e' solucao quando nao ha mais pecas por colocar e o topo nao esta preenchido."
 
 	(and (not (tabuleiro-topo-preenchido-p (estado-tabuleiro estado)))
-		(null (estado-pecas-por-colocar estado)))
-)
+		(null (estado-pecas-por-colocar estado))))
 
 
 (defun accoes (estado)
@@ -512,7 +494,7 @@ Descricao do algoritmo:
 			(pontuacao-obtida 0))
 
 			;3
-			; FIXME: este max e' um hack temporario para evitar indices negativos
+			; o max 0 evita alturas negativas
 			(loop for l from (max 0 altura-min-possivel) upto (1- altura-max-possivel)
 			do (if (tabuleiro-linha-completa-p tab-novo l)
 				(setf linhas-preenchidas (cons l linhas-preenchidas))
@@ -539,8 +521,7 @@ Descricao do algoritmo:
 
 (defun qualidade (estado) "Retorna o simetrico do numero de pontos."
 
-	(- (estado-pontos estado))
-)
+	(- (estado-pontos estado)))
 
 
 (defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos."
@@ -549,9 +530,7 @@ Descricao do algoritmo:
 		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
 			(incf max-pontos (pontos-por-peca peca))
 		)
-		(- max-pontos (estado-pontos estado))
-	)
-)
+		(- max-pontos (estado-pontos estado))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -575,8 +554,8 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 				; so preencher se posicao da peca for T
 				; caso contrario, vai apagar pecas do tabuleiro para meter o nil da peca
 				do (if (aref peca l c)
-					(tabuleiro-preenche! tab (+ linha l) (+ coluna c)))))
-))
+					(tabuleiro-preenche! tab (+ linha l) (+ coluna c)))))))
+
 
 (defun tabuleiro-larga-peca! (tab peca coluna)
 "Faz uma jogada de tetris - dados um tabuleiro, peca e coluna, coloca a peca no sitio correcto."
@@ -599,6 +578,7 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 
 	tab
 ))
+
 
 ; FIXME: o load ficou neste sitio estranho porque aparentemente:
 ; - se chama as funcoes x e y do "tetris.lisp", tem que ser depois de elas serem definidas
@@ -730,16 +710,6 @@ exemplos:
 
 			(push no-filho lista-nos)))
 
-		;FIXME: remover isto se possivel
-		#|; debug only
-		(dolist (no lista-nos)
-			(desenha-estado (no-estado no) (no-operador no))
-			(print (no-estado no))
-			(print (solucao (no-estado no))) ;e solucao? o problema esta aqui! mas o solucao parece-me bem, o tabuleiro-topo-preenchido tambem, deve ser no resultado!!!
-			(read-char)
-		)
-		; end of debug
-		|#
 		lista-nos
 ))
 
@@ -815,8 +785,7 @@ Nao tem em atencao o custo de caminho."
 		(stable-sort todos #'<= :key funcao-avaliacao)
 
 		todos
-	)
-)
+))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
@@ -873,8 +842,7 @@ para efectar uma procura em profundidade primeiro."
 	(general-search problema
 					#'(lambda (nos-actuais nos-novos) (enqueue-by-value nos-actuais nos-novos funcao-avaliacao))
 					heuristica
-	)
-)
+))
 
 
 ;; procura-A*
@@ -893,8 +861,7 @@ para efectar uma procura em profundidade primeiro."
 
 		; procura A* com heuristica-best (melhor combinacao de heuristicas)
 		(procura-A* problema #'heuristica-best)
-	)
-)
+))
 
 ;; heuristicas ;;
 
@@ -920,14 +887,11 @@ para efectar uma procura em profundidade primeiro."
 
 				(when (< altura coluna-mais-baixa)
 					(setf coluna-mais-baixa altura)
-				)
-			)
-		)
+		)))
 
 		; devolver a diferenca
 		(* factor (- coluna-mais-alta coluna-mais-baixa))
-	)
-)
+))
 
 
 (defun heuristica-casas-ocupadas (estado)
@@ -943,8 +907,7 @@ para efectar uma procura em profundidade primeiro."
 			)
 
 		(* factor (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
-	)
-)
+))
 
 
 (defun heuristica-buracos (estado)
@@ -968,13 +931,11 @@ para efectar uma procura em profundidade primeiro."
 			(let* ((altura (aref colunas col)))
 
 				(setf soma-pos-mais-altas (+ soma-pos-mais-altas altura))
-			)
-		)
+		))
 
 		; devolver a diferenca
 		(* factor (- soma-pos-mais-altas casas-ocupadas))
-	)
-)
+))
 
 
 (defun heuristica-altos-e-baixos (estado)
@@ -999,8 +960,7 @@ para efectar uma procura em profundidade primeiro."
 
 		; devolver resultado
 		(* factor resultado)
-	)
-)
+))
 
 
 (defun heuristica-best (estado)
@@ -1015,8 +975,7 @@ para efectar uma procura em profundidade primeiro."
 		(ignore-value h1)
 
 		(+ (* 0.50 h2) (* 0.30 h3) (* 0.10 h4) )
-	)
-)
+))
 
 
 ;; auxiliares
