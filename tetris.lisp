@@ -1,9 +1,7 @@
 ; Grupo 64:  	73008 	Duarte Pinto Pompeu	 	76765 	Antonio Joaquim Sousa Gloria	 	76338 	Marcio Antonio Filipe dos Santos
 
-; CARACTERES NAO ASCII: [^\x00-\x7F]+
-
 (defun rl ()
-	"faz load a varios ficheiros do projecto"
+"Carrega varios ficheiros do projecto."
 
  	(load "tetris.lisp")
 	(load "tests.lisp")
@@ -16,7 +14,10 @@
 	(load "hangman.lisp")
 )
 
+
 (defun rlalt ()
+"Carrega um tabuleiro alternativo."
+
 	(load "tab_alt.lisp")
 )
 
@@ -24,12 +25,11 @@
 (defvar  *DEBUG-MODE* T)
 
 (defun mylog (message)
-	"imprime mensagem caso DEBUG-MODE seja T"
+"Imprime mensagem caso DEBUG-MODE seja T."
 
  	(if *DEBUG-MODE*
  		(format t "~a ~%" message)
-	)
-)
+))
 
 
 ;;; DEFINICOES
@@ -49,10 +49,6 @@
    "o valor T simboliza uma casa ocupada")
 
 (defconstant +PONTUACAO-LINHAS+ '#(0 100 300 500 800))
-
-;;; GLOBAIS
-(defvar +LINHAS_TAB_ACTUAL+ 0)
-(defvar +COLUNAS_TAB_ACTUAL+ 0)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -81,9 +77,11 @@
 ;
 ; 2.1.2 - TIPO TABULEIRO
 ;
-; FUNCOES PUBLICAS
+; FUNCOES ENUNCIADO
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
 (defstruct tabuleiro
   "estrutura que define o tipo tabuleiro de jogo
       campo-jogo: um array que representa o campo de jogo cada posicao
@@ -318,28 +316,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-(defun gen-n-colunas (tabuleiro-generico)
-	(loop for c upto 1000
-		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
-			(if (not (and (numberp current-value) (>= current-value 0)))
-				(loop-finish)))
-	finally (return c))
-)
-
-
 (defun gen-h-colunas (tabuleiro-generico)
-	"obtem altura-max, pois os nossos campos optimizads nao se aplicam para problemas genericos"
+"Obtem a maior altura do tabuleiro, pois os nossos campos optimizados nao se aplicam para tabuleiros genericos."
 
-	(let ((n-colunas 0)
+	(let ((n-colunas +colunas+)
 		(arr-colunas nil))
-
-		; nao existe API para contar numero de colunas (sem ser atraves de tabuleiro-> array, uma operacao demasiado pesada)
-		; este loop conta numero de colunas atraves de um magnifico hack - ignore-errors
-		(loop for c upto 1000
-		do (let ((current-value (ignore-errors (tabuleiro-altura-coluna tabuleiro-generico c))))
-			(if (numberp current-value)
-				(incf n-colunas)
-				(loop-finish))))
 
 		; cria array com tamanho certo
 		(setf arr-colunas (make-array n-colunas))
@@ -357,9 +338,10 @@
 ;
 ; 2.1.3 - TIPO ESTADO
 ;
-; FUNCOES PUBLICAS
+; FUNCOES ENUNCIADO
 ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 (defstruct estado pontos pecas-por-colocar pecas-colocadas tabuleiro)
 
@@ -478,8 +460,7 @@ Descricao do algoritmo:
 				)
 			))
 		accoes-possiveis) ;3
-	)
-)
+))
 
 
 (defun resultado (estado accao)
@@ -547,13 +528,13 @@ Descricao do algoritmo:
 )
 
 
-(defun qualidade (estado) "Retorna o simetrico do numero de pontos"
+(defun qualidade (estado) "Retorna o simetrico do numero de pontos."
 
 	(- (estado-pontos estado))
 )
 
 
-(defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos"
+(defun custo-oportunidade (estado) "Retorna maximo-pontos-possivel - pontos."
 
 	(let ((max-pontos 0))
 		(dolist (peca (estado-pecas-colocadas estado) max-pontos)
@@ -655,7 +636,9 @@ Essas verificoes devem ser feitas por outras funcoes, que tenham as regras do jo
 
 
 (defun peca-base (p)
-; TODO: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
+; FIXME: como as pecas estao bem definidas, e possivel tornar isto uma serie de constantes
+; no entanto, nesta altura ja nao temos os simbolos (i, j, etc) mas sim matrizes de posicoes
+
 "E' importante conhecer a base da peca para saber onde a encaixar
 enquanto que um quadrado e' trivial - encaixa na altura mais alta por baixo dele
 um l deitado nao - pode encaixar no meio de buracos
@@ -731,13 +714,14 @@ exemplos:
 		(loop for accao in accoes
 		do (let* ((estado-resultante (funcall (problema-resultado problema) estado-inicial accao))
 
-			;FIXME: tem que receber a funcao qualidade como argumento
 			(custo-caminho (funcall (problema-custo-caminho problema) estado-resultante))
 			(valor-h (funcall heuristica estado-resultante))
 			(valor-f (+ custo-caminho valor-h))
 			(no-filho (make-no :estado estado-resultante :no-pai no-pai :operador accao :profundidade profundidade :custo-caminho custo-caminho :funcao-h valor-h :funcao-f valor-f)))
 
 			(push no-filho lista-nos)))
+
+		;FIXME: remover isto se possivel
 		#|; debug only
 		(dolist (no lista-nos)
 			(desenha-estado (no-estado no) (no-operador no))
@@ -752,6 +736,8 @@ exemplos:
 
 
 (defun nos->accoes (no-objectivo)
+"Dado um no objectivo, retorna os operadores necessarios para chegar do estado inicial ate ao final."
+
 	(if (null no-objectivo)
 		(return-from nos->accoes nil))
 
@@ -769,7 +755,7 @@ exemplos:
 
 
 (defun no-menor-f (n1 n2)
-	"Devolve T se o valor de f de n1 for menor que o de n2"
+	"Devolve T se o valor de f de n1 for menor que o de n2."
 
 	(<= (no-funcao-f n1) (no-funcao-f n2))
 )
@@ -798,8 +784,8 @@ exemplos:
 
 
 (defun enqueue-front (nos-actuais nos-expandidos)
-	"Adiciona novos nos a frente dos nos-actuais.
-	Nao tem em atencao o custo de caminho."
+"Adiciona novos nos a frente dos nos-actuais.
+Nao tem em atencao o custo de caminho."
 
 	;~ (let ((nos-a-adicionar (reverse nos-expandidos)))
 	; alteracao segundo instrucoes do professor
@@ -813,12 +799,12 @@ exemplos:
 
 
 (defun enqueue-by-value (nos-actuais nos-novos funcao-avaliacao)
-	"Adiciona os novos nos e mantem a lista ordenada"
+"Adiciona os novos nos e mantem a lista ordenada"
 
 	(let* ((todos (nconc (reverse nos-actuais) nos-novos)))
 
 		(stable-sort todos #'<= :key funcao-avaliacao)
-		
+
 		todos
 	)
 )
@@ -831,9 +817,9 @@ exemplos:
 
 
 (defun general-search (problema queuing-fn heuristica)
-	"Executa uma pesquisa generica.
-	 Pode ser utilizada por varios algoritmos de pesquisa, que apenas tem que fornecer uma queuing-function adequada.
-	 Tenta implementar rigorosamente o pseudo-codigo do manual da disciplina."
+"Executa uma pesquisa generica.
+Pode ser utilizada por varios algoritmos de pesquisa, que apenas tem que fornecer uma queuing-function adequada.
+Tenta implementar rigorosamente o pseudo-codigo do manual da disciplina."
 	; os comentarios em ingles sao retirados do pseudo-codigo do manual, para melhor referencia
 
 	; nodes <- MAKE-QUEUE (MAKE-NODE (INITIAL-STATE [problem]))
@@ -864,8 +850,8 @@ exemplos:
 ; exemplo de utilizacao
 ; > (procura-pp (cria-problema (cria-estado '(o o)) nil))
 (defun procura-pp (problema)
-	"Utiliza general-search e enqueue-front (funcao de enqueue em que nos expandidos vao para o inicio da fila)
-	para efectar uma procura em profundidade primeiro."
+"Utiliza general-search e enqueue-front (funcao de enqueue em que nos expandidos vao para o inicio da fila)
+para efectar uma procura em profundidade primeiro."
 	(nos->accoes
 		(general-search problema (function enqueue-front) #'sem-heuristica))
 )
@@ -917,12 +903,12 @@ exemplos:
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-dif-colunas (* factor +linhas+))
 		)
-	
-		; achar coluna mais baixa  
+
+		; achar coluna mais baixa
 		(dotimes (col +colunas+)
-			
+
 			(let* ((altura (aref colunas col)))
-			
+
 				(when (< altura coluna-mais-baixa)
 					(setf coluna-mais-baixa altura)
 				)
@@ -941,12 +927,12 @@ exemplos:
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (factor 25)
 		  )
-		  
+
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 			(when (tabuleiro-topo-preenchido-p tabuleiro)
 				(return-from heuristica-casas-ocupadas (* factor +casas+))
 			)
-		
+
 		(* factor (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
 	)
 )
@@ -954,7 +940,7 @@ exemplos:
 
 (defun heuristica-buracos (estado)
 	"calcula a diferenca entre a soma das posicoes mais altas das colunas e o numero de casas ocupadas"
-	
+
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (colunas (tabuleiro-altura-colunas tabuleiro))
 		   (casas-ocupadas (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
@@ -966,12 +952,12 @@ exemplos:
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-buracos (* factor +casas+))
 		)
-		
+
 		; achar soma das posicoes mais altas das colunas
 		(dotimes (col +colunas+)
-			
+
 			(let* ((altura (aref colunas col)))
-			
+
 				(setf soma-pos-mais-altas (+ soma-pos-mais-altas altura))
 			)
 		)
@@ -984,24 +970,24 @@ exemplos:
 
 (defun heuristica-altos-e-baixos (estado)
 	"calcula a soma do valor absoluto das diferencas de alturas de colunas adjacentes"
-	
+
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (colunas (tabuleiro-altura-colunas tabuleiro))
 		   (resultado 0)
 		   (factor 65)
 		  )
-		
+
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
 		(when (tabuleiro-topo-preenchido-p tabuleiro)
 			(return-from heuristica-altos-e-baixos (* factor (- +casas+ +linhas+)))
 		)
-		
+
 		; achar soma do valor absoluto das diferencas de alturas de colunas adjacentes
 		(dotimes (col (- +colunas+ 1))
-			
+
 			(setf resultado (+ resultado (abs (- (aref colunas (+ col 1)) (aref colunas col)))))
 		)
-		
+
 		; devolver resultado
 		(* factor resultado)
 	)
@@ -1010,19 +996,18 @@ exemplos:
 
 (defun heuristica-best (estado)
 	"a melhor funcao heuristica (combinacao de heuristicas)"
-	
+
 	(let* ((h1 (heuristica-dif-colunas estado))
 		   (h2 (heuristica-casas-ocupadas estado))
 		   (h3 (heuristica-buracos estado))
 		   (h4 (heuristica-altos-e-baixos estado))
 		  )
-		
+
 		(ignore-value h1)
-		
+
 		(+ (* 0.50 h2) (* 0.30 h3) (* 0.10 h4) )
 	)
 )
-
 
 
 ;; auxiliares
@@ -1031,5 +1016,3 @@ exemplos:
 	(ignore-value estado)
 	0
 )
-
-
