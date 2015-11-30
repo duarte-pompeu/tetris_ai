@@ -316,6 +316,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
+(defun tabuleiro-altura-preenchida (tabuleiro coluna)
+"Uma altura preenchida e o maximo de altura sem espacos livres no meio"
+
+	(loop for l upto (1- +linhas+)
+	do (if (not (tabuleiro-preenchido-p tabuleiro l coluna))
+			(return-from tabuleiro-altura-preenchida l)))
+)
+
+
 (defun gen-h-colunas (tabuleiro-generico)
 "Obtem a maior altura do tabuleiro, pois os nossos campos optimizados nao se aplicam para tabuleiros genericos."
 
