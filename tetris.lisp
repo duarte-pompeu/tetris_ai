@@ -509,7 +509,7 @@ Descricao do algoritmo:
 
 		(if (tabuleiro-topo-preenchido-p tab-novo)
 			(return-from resultado estado-novo))
-
+		; LINHAS REPETIDAS
 		(if (tabuleiro-topo-preenchido-p tab-novo)
 			(return-from resultado estado-novo))
 
@@ -896,19 +896,8 @@ exemplos:
 		   (estado (make-estado :pontos 0 :pecas-por-colocar lista-pecas :pecas-colocadas nil :tabuleiro tabuleiro))
 		   (problema (make-problema :estado-inicial estado :solucao #'solucao :accoes #'accoes :resultado #'resultado :custo-caminho #'custo-oportunidade)))
 
-		;(procura-A* problema #'heuristica-dif-colunas)
-		
-		; procura A* com heuristica-casas-ocupadas
-		(procura-A* problema #'heuristica-casas-ocupadas)
-		
-		; procura A* com heuristica-buracos
-		;(procura-A* problema #'heuristica-buracos)
-		
-		; procura A* com heuristica-altos-e-baixos
-		;(procura-A* problema #'heuristica-altos-e-baixos)
-		
-		; procura A* com heuristica-best
-		;(procura-A* problema #'heuristica-best)
+		; procura A* com heuristica-best (melhor combinacao de heuristicas)
+		(procura-A* problema #'heuristica-best)
 	)
 )
 
@@ -970,7 +959,7 @@ exemplos:
 		   (colunas (tabuleiro-altura-colunas tabuleiro))
 		   (casas-ocupadas (tabuleiro-total-ocupadas (estado-tabuleiro estado)))
 		   (soma-pos-mais-altas 0)
-		   (factor 700)
+		   (factor 500)
 		  )
 
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
@@ -999,7 +988,7 @@ exemplos:
 	(let* ((tabuleiro (estado-tabuleiro estado))
 		   (colunas (tabuleiro-altura-colunas tabuleiro))
 		   (resultado 0)
-		   (factor 75)
+		   (factor 65)
 		  )
 		
 		; se o topo estiver preenchido devolve o maior valor possivel da heuristica (nao queremos este estado!)
@@ -1028,7 +1017,9 @@ exemplos:
 		   (h4 (heuristica-altos-e-baixos estado))
 		  )
 		
-		(+ (* 0.40 h1) (* 0.05 h2) (* 0.30 h3) (* 0.25 h4))
+		(ignore-value h1)
+		
+		(+ (* 0.50 h2) (* 0.30 h3) (* 0.10 h4) )
 	)
 )
 
