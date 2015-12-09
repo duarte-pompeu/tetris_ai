@@ -30,7 +30,7 @@
 
 
 (defun pp1 ()
-	(testa-pp '(o o))
+	(testa-pp '(o i i))
 )
 
 

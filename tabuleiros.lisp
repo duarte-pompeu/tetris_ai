@@ -136,3 +136,82 @@
 	do (desenha-estado estado))
 )
 
+(defun pbr0 ()
+	(testa-best (cria-tabuleiro) '(o i i))
+)
+
+( defun ppr0 ()
+	(testa-pp  '(o i i) (cria-tabuleiro))
+)
+
+(defun pbr1 ()
+	(testa-best tabteste3 '(o i i))
+)
+
+( defun ppr1 ()
+	(testa-pp  '(o i i) tabteste3)
+)
+
+
+(defun pbr2 ()
+	(testa-best tabteste3 '(S I Z I T O O L S I))
+)
+
+( defun ppr2 ()
+	(testa-pp  '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pbr3 ()
+	(testa-best tabteste3 pteste-20a)
+)
+
+( defun ppr3 ()
+	(testa-pp  pteste-20a tabteste3)
+)
+
+
+;; heuristicas
+
+(defun pah11 ()
+	(testa-heur (function heuristica-dif-colunas) (function custo-oportunidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah12 ()
+	(testa-heur (function heuristica-casas-ocupadas) (function custo-oportunidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah13 ()
+	(testa-heur (function heuristica-buracos) (function custo-oportunidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah14 ()
+	(testa-heur (function heuristica-altos-e-baixos) (function custo-oportunidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah15 ()
+	(testa-heur (function heuristica-best) (function custo-oportunidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah21 ()
+	(testa-heur (function heuristica-dif-colunas) (function qualidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah22 ()
+	(testa-heur (function heuristica-casas-ocupadas) (function qualidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah23 ()
+	(testa-heur (function heuristica-buracos) (function qualidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah24 ()
+	(testa-heur (function heuristica-altos-e-baixos) (function qualidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+(defun pah25 ()
+	(testa-heur (function heuristica-best) (function qualidade) '(S I Z I T O O L S I) tabteste3)
+)
+
+ 
+
+

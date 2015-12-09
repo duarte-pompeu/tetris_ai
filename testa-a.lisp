@@ -16,6 +16,23 @@
 	 sequencia-solucao
 ))
 
+(defun testa-heur (heuristica funcao-custo lista-pecas &optional tabuleiro )
+	(let* ((estado (cria-estado lista-pecas))
+		(sequencia-solucao nil))
+		
+		(if tabuleiro
+			(setf (estado-tabuleiro estado) tabuleiro))
+	
+	(setf sequencia-solucao (procura-a* (cria-problema estado funcao-custo) heuristica))
+	(desenha-estado estado)
+	(funcall (desenha-jogada) estado sequencia-solucao)
+	
+	(mylog "numero pecas colocadas:")
+	(mylog (length sequencia-solucao))
+	 
+	 sequencia-solucao
+))
+
 
 (defun testa-best (tabuleiro lista-pecas )
 	(let* ((estado (cria-estado lista-pecas))
