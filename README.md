@@ -1,8 +1,3 @@
-# ia1516
-projecto ia 2015-2016
+# Tetris AI
 
-# Funções auxiliares
-
-- **rl**: faz reload de tetris.lisp e tests.lisp
-- **mylog**: faz log de uma mensagem para debug
-- **converte-linha**: neste momento, a ordem das linhas é inversa ao esperado (0 é a mais de cima, 17 é a mais de baixo). Esta função converte o número para ser usado em operações com arrays
+A tetris AI that maximizes score using Depth First Search or A* Search in Common Lisp. It was done for Artificial Intelligence 2015/2016 class at Instituto Superior Técnico.
